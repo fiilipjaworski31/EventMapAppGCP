@@ -10,8 +10,8 @@ exports.seed = async function(knex) {
   await knex('users').insert([
     {
       id: 1, 
-      firebase_uid: 'test-firebase-uid-12345', 
-      email: 'test.user@example.com'
+      firebase_uid: 'XuHUuUmcDpOtIBO0ueKT42QDFt72', 
+      email: 'test@user.com'
     }
   ]);
 };

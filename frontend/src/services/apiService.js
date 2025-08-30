@@ -13,4 +13,10 @@ export const getEvents = () => {
   return apiClient.get('/events');
 };
 
-// Tutaj w przyszłości dodam więcej funkcji (dodawanie, usuwanie, edycja)
+export const createEvent = async (eventData, token) => {
+  return apiClient.post('/events', eventData, {
+    headers: {
+      Authorization: `Bearer ${token}` // Dołącza token do nagłówka
+    }
+  });
+};

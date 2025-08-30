@@ -8,11 +8,13 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import EventDetailsPage from './pages/EventDetailsPage';
 import AddEventPage from './pages/AddEventPage';
+import { AuthProvider } from './context/AuthContext';
 import './App.css';
 
 function App() {
   return (
     <Router>
+      <AuthProvider>
       <div className="App">
         <Navbar />
         <main className="main-content">
@@ -25,6 +27,7 @@ function App() {
         </main>
         <Footer />
       </div>
+      </AuthProvider>
     </Router>
   );
 }

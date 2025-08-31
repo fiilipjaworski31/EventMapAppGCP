@@ -11,7 +11,7 @@ steps:
 
 # Step 3: Deploy the new image version to Cloud Run
 - name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim'
-  entrypoint: 'gcloud' # <-- ADD THIS LINE
+  entrypoint: 'gcloud'
   args:
     - 'run'
     - 'deploy'
@@ -22,7 +22,9 @@ steps:
     - '--platform'
     - 'managed'
     - '--allow-unauthenticated'
+    - '--service-account=ci-cd-service-account@${PROJECT_ID}.iam.gserviceaccount.com'
   id: 'Deploy to Cloud Run'
+
 
 # Step 4: Install dependencies and build the front-end application
 - name: 'gcr.io/cloud-builders/npm'

@@ -31,12 +31,18 @@ async function startServer() {
     // Pobierz hasło przed konfiguracją połączenia z bazą
     const dbPassword = await getDbPassword();
 
+    // Inteligentna konfiguracja bazy danych
+    const isProduction = process.env.NODE_ENV === 'production';
+
     const dbConfig = {
       user: 'postgres',
-      password: dbPassword, // Używamy hasła pobranego z Secret Managera
+      password: dbPassword,
       database: 'eventsdb',
-      host: '127.0.0.1',
-      port: 5433, // Zmieniony port na 5433
+      // Użyj Unix socket w produkcji (Cloud Run), a standardowego hosta i portu lokalnie
+      host: isProduction
+        ? `/cloudsql/healthy-result-469611-e9:europe-central2:event-map-db`
+        : '127.0.0.1',
+      port: isProduction ? null : 5433,
     };
 
     const pool = new Pool(dbConfig);

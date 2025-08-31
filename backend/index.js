@@ -34,15 +34,17 @@ async function startServer() {
     // Inteligentna konfiguracja bazy danych
     const isProduction = process.env.NODE_ENV === 'production';
 
+    const isInCloudRun = !!process.env.K_SERVICE;
+
     const dbConfig = {
       user: 'postgres',
       password: dbPassword,
       database: 'eventsdb',
-      // Użyj Unix socket w produkcji (Cloud Run), a standardowego hosta i portu lokalnie
-      host: isProduction
-        ? `/cloudsql/healthy-result-469611-e9:europe-central2:event-map-db`
+      // Użyj Unix socket w Cloud Run, a standardowego hosta i portu lokalnie
+      host: isInCloudRun
+        ? `/cloudsql/TWOJA-INSTANCE-CONNECTION-NAME` // Upewnij się, że to jest poprawnie wklejone
         : '127.0.0.1',
-      port: isProduction ? null : 5433,
+      port: isInCloudRun ? undefined : 5433,
     };
 
     const pool = new Pool(dbConfig);

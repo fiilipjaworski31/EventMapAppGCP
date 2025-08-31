@@ -1,20 +1,20 @@
 steps:
-# Zbuduj obraz Docker dla back-endu
+# Krok 1: Zbuduj obraz Docker dla back-endu
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA', './backend']
   id: 'Build Backend Image'
 
-# Wypchnij obraz do Google Artifact Registry
+# Krok 2: Wypchnij obraz do Google Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA']
   id: 'Push Backend Image'
 
-# Wdróż nową wersję obrazu na Cloud Run
-- name: 'gcr.io/google.com/cloudsdktool/gcloud'
+# Krok 3: Wdróż nową wersję obrazu na Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim' # <-- ZMIANA TUTAJ
   args:
     - 'run'
     - 'deploy'
-    - 'map-events-api' # Twoja nazwa serwisu w Cloud Run
+    - 'map-events-api'
     - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA'
     - '--region'
     - '${_REGION}'
@@ -23,7 +23,7 @@ steps:
     - '--allow-unauthenticated'
   id: 'Deploy to Cloud Run'
 
-# Zainstaluj zależności i zbuduj aplikację front-endową 
+# Krok 4: Zainstaluj zależności i zbuduj aplikację front-endową
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install']
   dir: 'frontend'
@@ -33,8 +33,8 @@ steps:
   dir: 'frontend'
   id: 'Build Frontend'
 
-# Wdróż front-end na Firebase Hosting 
-- name: 'gcr.io/google.com/cloudsdktool/gcloud'
+# Krok 5: Wdróż front-end na Firebase Hosting
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim' # <-- I ZMIANA TUTAJ
   entrypoint: 'bash'
   args:
     - '-c'
@@ -42,13 +42,11 @@ steps:
   dir: 'frontend'
   id: 'Deploy to Firebase Hosting'
 
-# Zapisz obrazy w Artifact Registry
 images:
 - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA'
 
-# Ustawienie zmiennych, które będą dostępne w procesie budowania
 substitutions:
-  _REGION: 'europe-central2' # lub inny region GCP
+  _REGION: 'europe-central2'
 
 options:
-  logging: CLOUD_LOGGING_ONLY # Włącz logowanie do Cloud Logging
+  logging: CLOUD_LOGGING_ONLY

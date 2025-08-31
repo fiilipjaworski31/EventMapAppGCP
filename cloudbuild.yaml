@@ -51,4 +51,4 @@ substitutions:
   _REGION: 'europe-central2' # lub inny region GCP
 
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: CLOUD_LOGGING_ONLY # Włącz logowanie do Cloud Logging

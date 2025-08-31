@@ -1,16 +1,17 @@
 steps:
-# Krok 1: Zbuduj obraz Docker dla back-endu
+# Step 1: Build the Docker image for the backend
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA', './backend']
   id: 'Build Backend Image'
 
-# Krok 2: Wypchnij obraz do Google Artifact Registry
+# Step 2: Push the image to Google Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA']
   id: 'Push Backend Image'
 
-# Krok 3: Wdróż nową wersję obrazu na Cloud Run
-- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim' # <-- ZMIANA TUTAJ
+# Step 3: Deploy the new image version to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim'
+  entrypoint: 'gcloud' # <-- ADD THIS LINE
   args:
     - 'run'
     - 'deploy'
@@ -23,7 +24,7 @@ steps:
     - '--allow-unauthenticated'
   id: 'Deploy to Cloud Run'
 
-# Krok 4: Zainstaluj zależności i zbuduj aplikację front-endową
+# Step 4: Install dependencies and build the front-end application
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install']
   dir: 'frontend'
@@ -33,8 +34,8 @@ steps:
   dir: 'frontend'
   id: 'Build Frontend'
 
-# Krok 5: Wdróż front-end na Firebase Hosting
-- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim' # <-- I ZMIANA TUTAJ
+# Step 5: Deploy the front end to Firebase Hosting
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim'
   entrypoint: 'bash'
   args:
     - '-c'

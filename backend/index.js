@@ -32,9 +32,9 @@ async function startServer() {
     const dbPassword = await getDbPassword();
 
     // Inteligentna konfiguracja bazy danych
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === 'production'; // Sprawdza, czy aplikacja działa w trybie produkcyjnym
 
-    const isInCloudRun = !!process.env.K_SERVICE;
+    const isInCloudRun = !!process.env.K_SERVICE; // Sprawdza, czy aplikacja działa w Cloud Run
 
     const dbConfig = {
       user: 'postgres',
@@ -44,7 +44,7 @@ async function startServer() {
       host: isInCloudRun
         ? `/cloudsql/healthy-result-469611-e9:europe-central2:event-map-db` // Nazwa połączenia instancji Cloud SQL
         : '127.0.0.1',
-      port: isInCloudRun ? undefined : 5433,
+      port: isInCloudRun ? undefined : 5433, // Domyślny port PostgreSQL to 5432, ale używam 5433, aby uniknąć konfliktów z lokalną instancją 
     };
 
     const pool = new Pool(dbConfig);

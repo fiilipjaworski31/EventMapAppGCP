@@ -22,8 +22,9 @@ steps:
     - '--platform'
     - 'managed'
     - '--allow-unauthenticated'
-    - '--service-account=ci-cd-service-account@${PROJECT_ID}.iam.gserviceaccount.com'
-  id: 'Deploy to Cloud Run'
+    - '--service-account=ci-cd-service-account@${PROJECT_ID}.iam.gserviceaccount.com' # Konto usługi dla Cloud Run
+    - '--add-cloudsql-instances=healthy-result-469611-e9:europe-central2:event-map-db' # Nazwa połączenia instancji Cloud SQL
+  id: 'Deploy to Cloud Run' 
 
 # Step 4: Install dependencies and build the front-end application
 - name: 'gcr.io/cloud-builders/npm'

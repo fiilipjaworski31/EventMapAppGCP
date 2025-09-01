@@ -42,7 +42,7 @@ async function startServer() {
       database: 'eventsdb',
       // Użyj Unix socket w Cloud Run, a standardowego hosta i portu lokalnie
       host: isInCloudRun
-        ? `/cloudsql/TWOJA-INSTANCE-CONNECTION-NAME` // Upewnij się, że to jest poprawnie wklejone
+        ? `/cloudsql/healthy-result-469611-e9:europe-central2:event-map-db` // Nazwa połączenia instancji Cloud SQL
         : '127.0.0.1',
       port: isInCloudRun ? undefined : 5433,
     };

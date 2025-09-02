@@ -1,0 +1,87 @@
+/* EventDetailsPage.css - Profesjonalny, nowoczesny styl dla strony szczegółów wydarzenia */
+
+.event-details-container {
+  max-width: 900px;
+  margin: 40px auto 0 auto;
+  padding: 32px 24px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.event-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #2d3a4b;
+  margin-bottom: 12px;
+}
+
+.event-meta {
+  color: #6c7a89;
+  font-size: 1.1rem;
+  margin-bottom: 18px;
+}
+
+.event-description {
+  font-size: 1.15rem;
+  color: #34495e;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.reviews-section {
+  margin-top: 24px;
+}
+
+.reviews-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2d3a4b;
+  margin-bottom: 16px;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.review-item {
+  background: #f5f7fa;
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+}
+
+.review-author {
+  font-weight: 600;
+  color: #2980b9;
+  margin-bottom: 4px;
+}
+
+.review-content {
+  color: #34495e;
+  font-size: 1.05rem;
+}
+
+/* Formularz recenzji */
+.review-form-section {
+  margin-top: 32px;
+  padding: 24px 18px;
+  background: #f9fafb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+}
+
+/* Responsywność */
+@media (max-width: 700px) {
+  .event-details-container {
+    padding: 16px 4vw;
+  }
+  .event-title {
+    font-size: 1.4rem;
+  }
+}

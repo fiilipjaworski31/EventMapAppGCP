@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import reviewService from '../services/review.service';
 import { useAuth } from '../context/AuthContext';
+import './ReviewForm.css';
 
 const ReviewForm = ({ eventId, onReviewAdded }) => {
   const { currentUser } = useAuth();

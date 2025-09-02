@@ -36,22 +36,24 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-container">
-      <h2>Logowanie</h2>
-      <form onSubmit={handleLogin}>
-        <div className="form-group">
-          <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      <div className="auth-page-wrapper">
+        <div className="login-container">
+        <h2>Logowanie</h2>
+        <form onSubmit={handleLogin}>
+          <div className="form-group">
+            <label htmlFor="login-email">Email</label>
+            <input id="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="login-password">Hasło</label>
+            <input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
+          </div>
+          {error && <p className="error-message">{error}</p>}
+          <button type="submit">Zaloguj się</button>
+        </form>
+        <div className="toggle-button">
+          <span>Nie masz konta? <Link to="/register">Zarejestruj się</Link></span>
         </div>
-        <div className="form-group">
-          <label>Hasło</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        {error && <p className="error-message">{error}</p>}
-        <button type="submit">Zaloguj się</button>
-      </form>
-      <div className="toggle-button">
-        <p>Nie masz konta? <Link to="/register">Zarejestruj się</Link></p>
       </div>
     </div>
   );

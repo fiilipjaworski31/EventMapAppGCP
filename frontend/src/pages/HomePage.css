@@ -1,0 +1,141 @@
+.homepage-container {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.homepage-title {
+  margin: 0 0 1rem;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.025em;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(30, 41, 59, 0.07);
+  transition: font-size 0.3s ease;
+}
+
+.homepage-map {
+  width: calc(100% - 2rem);
+  max-width: 900px;
+  height: calc(100vh - 120px);
+  max-height: 80vh;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 24px rgba(44, 62, 80, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.homepage-map:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 32px rgba(44, 62, 80, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Tablet styles */
+@media (max-width: 768px) {
+  .homepage-title {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+  }
+  
+  .homepage-map {
+    width: calc(100% - 1rem);
+    height: calc(100vh - 100px);
+    max-height: 85vh;
+    border-radius: 12px;
+    padding: 0.75rem;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .homepage-title {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .homepage-map {
+    width: calc(100% - 0.5rem);
+    height: calc(100vh - 80px);
+    max-height: 90vh;
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 2px 16px rgba(44, 62, 80, 0.08);
+  }
+  
+  .homepage-map:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .homepage-container {
+    background: linear-gradient(120deg, #0f172a 0%, #1e1b4b 100%);
+  }
+  
+  .homepage-title {
+    color: #f1f5f9;
+    text-shadow: 0 2px 12px rgba(241, 245, 249, 0.1);
+  }
+  
+  .homepage-map {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    box-shadow: 
+      0 4px 24px rgba(0, 0, 0, 0.3),
+      0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .homepage-map:hover {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .homepage-title,
+  .homepage-map {
+    transition: none;
+  }
+  
+  .homepage-map:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .homepage-title {
+    text-shadow: none;
+    color: #000000;
+  }
+  
+  .homepage-map {
+    border: 2px solid #000000;
+    box-shadow: none;
+  }
+}

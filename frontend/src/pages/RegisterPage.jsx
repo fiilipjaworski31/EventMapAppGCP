@@ -46,27 +46,29 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="login-container">
-      <h2>Rejestracja</h2>
-      <form onSubmit={handleRegister}>
-        {/* DODANE POLE NA NAZWĘ UŻYTKOWNIKA */}
-        <div className="form-group">
-          <label>Nazwa użytkownika</label>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+    <div className="auth-page-wrapper">
+      <div className="login-container">
+        <h2>Rejestracja</h2>
+        <form onSubmit={handleRegister}>
+          {/* DODANE POLE NA NAZWĘ UŻYTKOWNIKA */}
+            <div className="form-group">
+              <label htmlFor="register-username">Nazwa użytkownika</label>
+              <input id="register-username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="register-email">Email</label>
+            <input id="register-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+          </div>
+          <div className="form-group">
+              <label htmlFor="register-password">Hasło</label>
+              <input id="register-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" />
+          </div>
+          {error && <p className="error-message">{error}</p>}
+          <button type="submit">Zarejestruj się</button>
+        </form>
+        <div className="toggle-button">
+            <span>Masz już konto? <Link to="/login">Zaloguj się</Link></span>
         </div>
-        <div className="form-group">
-          <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>Hasło</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        {error && <p className="error-message">{error}</p>}
-        <button type="submit">Zarejestruj się</button>
-      </form>
-      <div className="toggle-button">
-        <p>Masz już konto? <Link to="/login">Zaloguj się</Link></p>
       </div>
     </div>
   );

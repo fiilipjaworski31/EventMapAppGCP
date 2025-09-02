@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import eventService from '../services/eventService';
+import eventService from '../services/event.service';
 import { useAuth } from '../context/AuthContext';
 
 const AddEventPage = () => {

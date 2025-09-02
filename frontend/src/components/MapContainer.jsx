@@ -1,52 +1,71 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import { getEvents } from '../services/apiService'; // Zaimportuj funkcję
+import { APIProvider, Map, AdvancedMarker, InfoWindow } from '@vis.gl/react-google-maps';
+import { Link } from 'react-router-dom';
+import eventService from '../services/event.service';
+import './MapContainer.css';
 
 const containerStyle = {
   width: '100%',
-  height: '80vh',
+  height: '60vh'
 };
 
 const center = {
-  lat: 52.2297,
-  lng: 21.0122,
+  lat: 52.2297, // Centrum Warszawy
+  lng: 21.0122
 };
 
 const MapContainer = () => {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  });
-
-  // Stan do przechowywania listy wydarzeń
   const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // useEffect do pobrania danych, gdy komponent jest gotowy
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await getEvents();
-        setEvents(response.data); // Zapisz pobrane wydarzenia w stanie
-      } catch (error) {
-        console.error('Błąd podczas pobierania wydarzeń:', error);
-      }
-    };
+    eventService.getAllEvents()
+      .then(response => {
+        setEvents(response.data);
+      })
+      .catch(error => {
+        console.error("Błąd podczas pobierania wydarzeń!", error);
+      });
+  }, []);
 
-    fetchEvents();
-  }, []); // Pusta tablica zależności oznacza, że efekt uruchomi się tylko raz
+  return (
+    // APIProvider to nowy, wymagany komponent opakowujący mapę
+    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+  <div className="map-container">
+        <Map
+          defaultCenter={center}
+          defaultZoom={12}
+          mapId={import.meta.env.VITE_GOOGLE_MAPS_ID} // Map ID jest tutaj kluczowe
+          gestureHandling={'greedy'}
+          disableDefaultUI={true}
+        >
+          {events.map(event => (
+            <AdvancedMarker
+              key={event.id}
+              position={{ 
+                lat: parseFloat(event.latitude), // <-- POPRAWIONE
+                lng: parseFloat(event.longitude) // <-- POPRAWIONE
+              }}
+              onClick={() => setSelectedEvent(event)}
+            />
+          ))}
 
-  return isLoaded ? (
-    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
-      {/* Mapowanie po liście wydarzeń i renderowanie dla każdego znacznika */}
-      {events.map((event) => (
-        <Marker
-          key={event.id}
-          position={{ lat: parseFloat(event.latitude), lng: parseFloat(event.longitude) }}
-          title={event.title}
-        />
-      ))}
-    </GoogleMap>
-  ) : <p>Ładowanie mapy...</p>;
+          {selectedEvent && (
+            <InfoWindow
+              position={{ lat: parseFloat(selectedEvent.latitude), lng: parseFloat(selectedEvent.longitude) }}
+              onCloseClick={() => setSelectedEvent(null)}
+            >
+              <div className="custom-info-window">
+                <h4>{selectedEvent.title}</h4>
+                <p>{selectedEvent.address}</p>
+                <Link to={`/event/${selectedEvent.id}`}>Zobacz szczegóły</Link>
+              </div>
+            </InfoWindow>
+          )}
+        </Map>
+      </div>
+    </APIProvider>
+  );
 };
 
-export default React.memo(MapContainer);
+export default MapContainer;

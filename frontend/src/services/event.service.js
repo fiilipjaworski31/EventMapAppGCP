@@ -26,11 +26,19 @@ const createEvent = (eventData, token) => {
   });
 };
 
-// Eksportujemy obiekt, który zawiera wszystkie nasze funkcje,
-// aby można było ich łatwo używać w innych częściach aplikacji.
+/**
+ * Pobiera jedno wydarzenie po jego ID.
+ * @param {string|number} id - ID wydarzenia.
+ * @returns {Promise} Obietnica Axios z danymi wydarzenia.
+ */
+const getEventById = (id) => {
+  return axios.get(`${API_URL}/api/events/${id}`);
+};
+
 const eventService = {
   getAllEvents,
   createEvent,
+  getEventById, // <-- Dodaj eksport
 };
 
 export default eventService;

@@ -1,7 +1,7 @@
-const knex = require('./db-config'); 
+const knex = require('../config/database'); // <--- PRAWIDŁOWA ŚCIEŻKA
 
 // Funkcja do dodawania nowej recenzji
-const addReview = (review) => {
+const addReview = (review) => {z
   return knex('reviews').insert(review).returning('*');
 };
 

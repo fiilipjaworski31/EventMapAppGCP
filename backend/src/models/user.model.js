@@ -6,6 +6,11 @@ const findByFirebaseId = (firebaseUid) => {
   return knex('users').where({ firebase_uid: firebaseUid }).first();
 };
 
+const create = (userData) => {
+  return knex('users').insert(userData).returning('*');
+};
+
 module.exports = {
   findByFirebaseId,
+  create,
 };

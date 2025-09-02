@@ -1,39 +1,106 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
-import { createEvent } from '../services/apiService'; // Import funkcji API
 import { useNavigate } from 'react-router-dom';
-import './AddEventPage.css';
+import eventService from '../services/eventService';
+import { useAuth } from '../context/AuthContext';
 
 const AddEventPage = () => {
-  const { currentUser } = useAuth(); // Pobierz zalogowanego użytkownika
-  const navigate = useNavigate(); // Do przekierowania po sukcesie
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
+  // Stany dla wszystkich pól z bazy danych
   const [title, setTitle] = useState('');
-  // ... inne stany (description, date, etc.) bez zmian
+  const [description, setDescription] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [address, setAddress] = useState('');
+  
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!currentUser) {
-      alert('Musisz być zalogowany, aby dodać wydarzenie.');
+      setError('Musisz być zalogowany, aby dodać wydarzenie.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+    if (isNaN(lat) || isNaN(lon)) {
+      setError('Szerokość i długość geograficzna muszą być poprawnymi liczbami.');
+      setIsSubmitting(false);
       return;
     }
 
     try {
-      const token = await currentUser.getIdToken(); // Pobierz token Firebase
-      const newEvent = { title, description, date, latitude, longitude };
+      const token = await currentUser.getIdToken();
+      const eventData = {
+        title,
+        description,
+        latitude: lat,
+        longitude: lon,
+        address,
+        start_time: startTime, // Wymagane przez bazę danych!
+        end_time: endTime || null, // Wyślij null, jeśli puste
+      };
       
-      await createEvent(newEvent, token); // Wyślij dane i token do API
+      await eventService.createEvent(eventData, token);
+      
+      navigate('/'); 
 
-      alert('Wydarzenie dodane pomyślnie!');
-      navigate('/'); // Przekieruj na stronę główną
-    } catch (error) {
-      console.error('Błąd podczas dodawania wydarzenia:', error);
-      alert('Wystąpił błąd. Sprawdź konsolę, aby uzyskać więcej informacji.');
+    } catch (err) {
+      setError('Wystąpił błąd podczas dodawania wydarzenia. Spróbuj ponownie.');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // ... reszta komponentu (return z formularzem) bez zmian
+  return (
+    <div>
+      <h2>Dodaj nowe wydarzenie</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Tytuł:</label>
+          <input type="text" value={title} onChange={e => setTitle(e.target.value)} required />
+        </div>
+        <div>
+          <label>Opis:</label>
+          <textarea value={description} onChange={e => setDescription(e.target.value)} />
+        </div>
+        <div>
+          <label>Adres:</label>
+          <input type="text" value={address} onChange={e => setAddress(e.target.value)} />
+        </div>
+        <div>
+          <label>Czas rozpoczęcia:</label>
+          <input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)} required />
+        </div>
+        <div>
+          <label>Czas zakończenia (opcjonalnie):</label>
+          <input type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)} />
+        </div>
+        <div>
+          <label>Szerokość geograficzna (Latitude):</label>
+          <input type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value)} required placeholder="np. 52.2297" />
+        </div>
+        <div>
+          <label>Długość geograficzna (Longitude):</label>
+          <input type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value)} required placeholder="np. 21.0122" />
+        </div>
+
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Dodawanie...' : 'Dodaj wydarzenie'}
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default AddEventPage;

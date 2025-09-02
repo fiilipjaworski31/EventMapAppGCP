@@ -10,7 +10,7 @@ const apiClient = axios.create({
 
 // Funkcja do pobierania wszystkich wydarzeń
 export const getEvents = () => {
-  return apiClient.get('/events');
+  return apiClient.get('/api/events');
 };
 
 export const createEvent = async (eventData, token) => {

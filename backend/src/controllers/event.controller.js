@@ -36,6 +36,7 @@ exports.createEvent = async (req, res) => {
     const [newEvent] = await Event.create(eventData);
     res.status(201).json(newEvent);
   } catch (error) {
+    console.error("BŁĄD PODCZAS TWORZENIA WYDARZENIA:", error); // <-- DODAJ TEN LOG
     res.status(500).json({ message: 'Błąd podczas tworzenia wydarzenia.', error: error.message });
   }
 };

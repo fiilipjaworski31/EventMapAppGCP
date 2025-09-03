@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import reviewService from '../services/review.service';
 import { useAuth } from '../context/AuthContext';
 import './ReviewForm.css';
 
-const ReviewForm = ({ eventId, onReviewAdded }) => {
+const ReviewForm = ({ eventId, onReviewAdded, existingReview = null }) => {
   const { currentUser } = useAuth();
   
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const [rating, setRating] = useState(existingReview ? existingReview.rating : 0);
+  const [comment, setComment] = useState(existingReview ? existingReview.comment || '' : '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [mode, setMode] = useState(existingReview ? 'edit' : 'add'); // 'add' lub 'edit'
+
+  // Resetuj formularz gdy existingReview się zmieni
+  useEffect(() => {
+    if (existingReview) {
+      setRating(existingReview.rating);
+      setComment(existingReview.comment || '');
+      setMode('edit');
+    } else {
+      setRating(0);
+      setComment('');
+      setMode('add');
+    }
+  }, [existingReview]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,75 +32,119 @@ const ReviewForm = ({ eventId, onReviewAdded }) => {
       return;
     }
     if (!currentUser) {
-        setError('Musisz być zalogowany, aby dodać recenzję.');
-        return;
+      setError('Musisz być zalogowany, aby dodać recenzję.');
+      return;
     }
 
     setIsSubmitting(true);
     setError('');
 
     try {
-      // Dynamiczne i bezpieczne pobranie tokenu JWT aktualnego użytkownika
       const token = await currentUser.getIdToken();
-
       const reviewData = { rating, comment };
-      const response = await reviewService.addReview(eventId, reviewData, token);
-      
-      onReviewAdded(response.data);
 
-      setRating(0);
-      setComment('');
+      let response;
+      if (mode === 'edit' && existingReview) {
+        // Aktualizuj istniejącą recenzję
+        response = await reviewService.updateReview(eventId, existingReview.id, reviewData, token);
+        onReviewAdded(response.data, 'updated');
+      } else {
+        // Dodaj nową recenzję lub spróbuj ponownie
+        try {
+          response = await reviewService.addReview(eventId, reviewData, token);
+          onReviewAdded(response.data, 'added');
+          
+          // Resetuj formularz po pomyślnym dodaniu
+          setRating(0);
+          setComment('');
+        } catch (err) {
+          if (err.response && err.response.status === 409) {
+            // Konflikt - użytkownik już ma recenzję dla tego wydarzenia
+            setError('Już masz recenzję dla tego wydarzenia. Spróbuj odświeżyć stronę, aby ją edytować.');
+            return;
+          }
+          throw err; // Re-throw other errors
+        }
+      }
+
     } catch (err) {
-      setError('Nie udało się dodać recenzji. Spróbuj ponownie.');
+      setError('Nie udało się zapisać recenzji. Spróbuj ponownie.');
       console.error(err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleCancel = () => {
+    if (mode === 'edit') {
+      // Anuluj edycję - przywróć pierwotne wartości
+      setRating(existingReview.rating);
+      setComment(existingReview.comment || '');
+      onReviewAdded(null, 'cancelled');
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: '20px', padding: '15px', border: '1px solid #eee', borderRadius: '8px' }}>
-      <h4>Dodaj swoją recenzję</h4>
+    <div className="review-form">
+      <h4>{mode === 'edit' ? 'Edytuj swoją recenzję' : 'Dodaj swoją recenzję'}</h4>
       
-      <div>
-        <label>Ocena:</label>
-        <div style={{ margin: '5px 0' }}>
-          {[1, 2, 3, 4, 5].map((star) => (
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Ocena:</label>
+          <div className="rating-buttons">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button 
+                type="button" 
+                key={star} 
+                onClick={() => setRating(star)}
+                className={star <= rating ? 'active' : ''}
+              >
+                ★
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="comment">Komentarz (opcjonalnie):</label>
+          <textarea
+            id="comment"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Podziel się swoimi wrażeniami..."
+          />
+        </div>
+
+        {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+        
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button type="submit" disabled={isSubmitting} className="submit-button">
+            {isSubmitting 
+              ? (mode === 'edit' ? 'Aktualizuję...' : 'Wysyłanie...') 
+              : (mode === 'edit' ? 'Zaktualizuj recenzję' : 'Opublikuj recenzję')
+            }
+          </button>
+          
+          {mode === 'edit' && (
             <button 
               type="button" 
-              key={star} 
-              onClick={() => setRating(star)}
+              onClick={handleCancel}
+              disabled={isSubmitting}
               style={{ 
-                backgroundColor: star <= rating ? 'gold' : 'lightgray', 
-                marginRight: '5px', 
+                backgroundColor: '#6c757d', 
+                color: 'white', 
                 border: 'none', 
-                cursor: 'pointer',
-                fontSize: '1.5rem',
-                padding: '0 5px'
+                padding: '0.75rem 1.5rem',
+                borderRadius: '4px',
+                cursor: 'pointer'
               }}
             >
-              ★
+              Anuluj
             </button>
-          ))}
+          )}
         </div>
-      </div>
-
-      <div style={{ marginTop: '10px' }}>
-        <label htmlFor="comment">Komentarz (opcjonalnie):</label>
-        <textarea
-          id="comment"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          style={{ width: '100%', minHeight: '80px', marginTop: '5px', boxSizing: 'border-box' }}
-          placeholder="Podziel się swoimi wrażeniami..."
-        />
-      </div>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <button type="submit" disabled={isSubmitting} style={{ marginTop: '10px' }}>
-        {isSubmitting ? 'Wysyłanie...' : 'Opublikuj recenzję'}
-      </button>
-    </form>
+      </form>
+    </div>
   );
 };
 

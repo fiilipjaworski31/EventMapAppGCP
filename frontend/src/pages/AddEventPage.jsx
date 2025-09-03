@@ -10,7 +10,7 @@ const AddEventPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
-  // Add state for the new fields
+  // Add state for all fields including the new ones
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -46,7 +46,7 @@ const AddEventPage = () => {
     try {
       const token = await currentUser.getIdToken();
       
-      // Add the new fields to the data object sent to the API
+      // Add all fields to the data object sent to the API
       const eventData = {
         title,
         description,
@@ -141,6 +141,27 @@ const AddEventPage = () => {
 
           <div className="form-row">
             <div className="form-group">
+              <label>Event URL <span className="optional">(optional)</span></label>
+              <input 
+                type="url" 
+                value={url} 
+                onChange={e => setUrl(e.target.value)}
+                placeholder="https://example.com/event-page"
+              />
+            </div>
+            <div className="form-group">
+              <label>Image URL <span className="optional">(optional)</span></label>
+              <input 
+                type="url" 
+                value={imageUrl} 
+                onChange={e => setImageUrl(e.target.value)}
+                placeholder="https://example.com/event-image.jpg"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
               <label>Latitude</label>
               <input 
                 type="number" 
@@ -163,8 +184,6 @@ const AddEventPage = () => {
               />
             </div>
           </div>
-
-
 
           {error && <div className="error-message">{error}</div>}
           

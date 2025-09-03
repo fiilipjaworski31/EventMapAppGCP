@@ -10,7 +10,10 @@ exports.getAllEvents = async (req, res) => {
       date: req.query.date,
     };
     
+    console.log('Controller received filters:', filters); // Debug log
+    
     const events = await Event.findAll(filters);
+    console.log(`Found ${events.length} events after filtering`); // Debug log
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ message: 'Błąd podczas pobierania wydarzeń.', error });

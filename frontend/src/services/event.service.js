@@ -18,14 +18,8 @@ const getAllEvents = (filters = {}) => {
     params.append('date', filters.date);
   }
 
-  const request = axios.get(`${API_URL}/api/events`, { params });
-  
-  // Log the raw data to the console for easy inspection
-  request.then(response => {
-    console.log("Data received from events API:", response.data);
-  });
-  
-  return request;
+  // Remove the console.log to prevent double logging
+  return axios.get(`${API_URL}/api/events`, { params });
 };
 
 /**

@@ -7,6 +7,13 @@ const findByUserAndEvent = (userId, eventId) => {
     .first();
 };
 
+// NOWA FUNKCJA: Znajduje recenzję po ID
+const findById = (reviewId) => {
+  return knex('reviews')
+    .where({ id: reviewId })
+    .first();
+};
+
 const addReview = (review) => {
   return knex('reviews').insert(review).returning('*');
 };
@@ -15,20 +22,21 @@ const getReviewsByEventId = (eventId) => {
   return knex('reviews').where({ event_id: eventId }).orderBy('created_at', 'desc');
 };
 
-// NOWA FUNKCJA: Aktualizuje istniejącą recenzję
+// FUNKCJA: Aktualizuje istniejącą recenzję
 const update = (reviewId, reviewData) => {
     return knex('reviews').where({ id: reviewId }).update(reviewData).returning('*');
 };
 
-// NOWA FUNKCJA: Usuwa recenzję
+// FUNKCJA: Usuwa recenzję
 const remove = (reviewId) => {
     return knex('reviews').where({ id: reviewId }).del();
 };
 
 module.exports = {
-  findByUserAndEvent, // <--- eksport
+  findByUserAndEvent,
+  findById, // <--- nowy eksport
   addReview,
   getReviewsByEventId,
-  update, // <--- eksport
-  remove, // <--- eksport
+  update,
+  remove,
 };

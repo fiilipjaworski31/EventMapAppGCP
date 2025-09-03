@@ -18,9 +18,29 @@ const addReview = (eventId, reviewData, token) => {
   });
 };
 
+// Funkcja do aktualizacji istniejącej recenzji
+const updateReview = (eventId, reviewId, reviewData, token) => {
+  return axios.put(`${API_URL}/api/events/${eventId}/reviews/${reviewId}`, reviewData, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
+
+// Funkcja do usuwania recenzji
+const deleteReview = (eventId, reviewId, token) => {
+  return axios.delete(`${API_URL}/api/events/${eventId}/reviews/${reviewId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
+
 const reviewService = {
   getReviewsForEvent,
   addReview,
+  updateReview,
+  deleteReview,
 };
 
 export default reviewService;

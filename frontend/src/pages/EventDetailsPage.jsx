@@ -17,6 +17,8 @@ const EventDetailsPage = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editingReview, setEditingReview] = useState(null);
+  const [userReview, setUserReview] = useState(null);
 
   useEffect(() => {
     if (!id) {
@@ -37,6 +39,13 @@ const EventDetailsPage = () => {
 
         setEvent(eventResponse.data);
         setReviews(reviewsResponse.data || []);
+
+        if (currentUser && reviewsResponse.data) {
+          const existingUserReview = reviewsResponse.data.find(
+            review => review.user_id === currentUser.uid
+          );
+          setUserReview(existingUserReview || null);
+        }
       } catch (err) {
         console.error('Błąd podczas pobierania danych:', err);
         const errorMessage = err.response?.data?.message || 
@@ -49,10 +58,42 @@ const EventDetailsPage = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, currentUser]);
 
-  const handleReviewAdded = (newReview) => {
-    setReviews(prevReviews => [newReview, ...prevReviews]);
+  const handleReviewAction = (reviewData, action) => {
+    if (action === 'added') {
+      setReviews(prevReviews => [reviewData, ...prevReviews]);
+      setUserReview(reviewData);
+    } else if (action === 'updated') {
+      setReviews(prevReviews => 
+        prevReviews.map(review => 
+          review.id === reviewData.id ? reviewData : review
+        )
+      );
+      setUserReview(reviewData);
+      setEditingReview(null);
+    } else if (action === 'cancelled') {
+      setEditingReview(null);
+    }
+  };
+
+  const handleEditClick = (review) => {
+    setEditingReview(review);
+  };
+
+  const shouldShowForm = currentUser && (!userReview || editingReview);
+
+  // Helper function to format date and time
+  const formatDateTime = (dateString) => {
+    if (!dateString) return null;
+    return new Date(dateString).toLocaleString('pl-PL', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   if (loading) {
@@ -96,12 +137,81 @@ const EventDetailsPage = () => {
   return (
     <div className="page-background">
       <div className="event-details-container">
+        {/* Event Image Section */}
+        {event.image_url && (
+          <div className="event-image-section">
+            <img 
+              src={event.image_url} 
+              alt={event.title}
+              className="event-main-image"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+
         <header className="event-header">
           <h1 className="event-title">{event.title}</h1>
-          <div className="event-meta">
-            <span className="event-date">{event.date}</span>
-            <span className="event-separator">|</span>
-            <span className="event-location">{event.location}</span>
+          
+          {/* Event Meta Information */}
+          <div className="event-meta-grid">
+            {event.start_time && (
+              <div className="meta-item">
+                <span className="meta-icon">🗓️</span>
+                <div className="meta-content">
+                  <strong>Data rozpoczęcia:</strong>
+                  <span>{formatDateTime(event.start_time)}</span>
+                </div>
+              </div>
+            )}
+            
+            {event.end_time && (
+              <div className="meta-item">
+                <span className="meta-icon">🏁</span>
+                <div className="meta-content">
+                  <strong>Data zakończenia:</strong>
+                  <span>{formatDateTime(event.end_time)}</span>
+                </div>
+              </div>
+            )}
+            
+            {event.venue_name && (
+              <div className="meta-item">
+                <span className="meta-icon">🏢</span>
+                <div className="meta-content">
+                  <strong>Miejsce:</strong>
+                  <span>{event.venue_name}</span>
+                </div>
+              </div>
+            )}
+            
+            {event.address && (
+              <div className="meta-item">
+                <span className="meta-icon">📍</span>
+                <div className="meta-content">
+                  <strong>Adres:</strong>
+                  <span>{event.address}</span>
+                </div>
+              </div>
+            )}
+            
+            {event.url && (
+              <div className="meta-item">
+                <span className="meta-icon">🎫</span>
+                <div className="meta-content">
+                  <strong>Bilety/Więcej info:</strong>
+                  <a 
+                    href={event.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="event-link"
+                  >
+                    Zobacz oficjalną stronę
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         </header>
 
@@ -113,10 +223,37 @@ const EventDetailsPage = () => {
                 event.description.includes('<a href=') ? (
                   <div dangerouslySetInnerHTML={{ __html: event.description }} />
                 ) : (
-                  event.description
+                  <p>{event.description}</p>
                 )
               ) : (
-                'Brak opisu dla tego wydarzenia.'
+                <p className="no-description">Brak opisu dla tego wydarzenia.</p>
+              )}
+            </div>
+          </section>
+
+          {/* Additional Event Information */}
+          <section className="event-info-section">
+            <h2 className="section-title">Informacje dodatkowe</h2>
+            <div className="info-grid">
+              {event.created_at && (
+                <div className="info-item">
+                  <strong>Dodano do systemu:</strong>
+                  <span>{new Date(event.created_at).toLocaleDateString('pl-PL')}</span>
+                </div>
+              )}
+              
+              {event.external_id && (
+                <div className="info-item">
+                  <strong>ID zewnętrzne:</strong>
+                  <span>{event.external_id}</span>
+                </div>
+              )}
+              
+              {event.latitude && event.longitude && (
+                <div className="info-item">
+                  <strong>Współrzędne:</strong>
+                  <span>{parseFloat(event.latitude).toFixed(6)}, {parseFloat(event.longitude).toFixed(6)}</span>
+                </div>
               )}
             </div>
           </section>
@@ -133,18 +270,31 @@ const EventDetailsPage = () => {
                   <p>Bądź pierwszą osobą, która podzieli się opinią!</p>
                 </div>
               ) : (
-                <ReviewList reviews={reviews} />
+                <ReviewList 
+                  reviews={reviews} 
+                  onEditClick={handleEditClick}
+                />
               )}
             </div>
           </section>
 
           <section className="review-form-section">
-            <h2 className="section-title">Dodaj recenzję</h2>
-            {currentUser ? (
+            <h2 className="section-title">
+              {userReview && !editingReview ? 'Twoja recenzja' : 'Dodaj recenzję'}
+            </h2>
+            
+            {shouldShowForm ? (
               <ReviewForm 
                 eventId={id} 
-                onReviewAdded={handleReviewAdded} 
+                onReviewAdded={handleReviewAction}
+                existingReview={editingReview}
               />
+            ) : currentUser && userReview ? (
+              <div className="user-has-review">
+                <p>
+                  Już dodałeś recenzję do tego wydarzenia. Możesz ją edytować klikając przycisk "Edytuj" przy swojej recenzji powyżej.
+                </p>
+              </div>
             ) : (
               <div className="login-prompt">
                 <p>Zaloguj się, aby dodać recenzję.</p>

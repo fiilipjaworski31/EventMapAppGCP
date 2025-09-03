@@ -2,9 +2,9 @@
 
 import React from 'react';
 import MapContainer from '../components/MapContainer';
-import './HomePage.css'; // Assuming you will add styles here
+import './HomePage.css';
 
-const HomePage = () => {
+const HomePage = ({ filters }) => {
   return (
     <div className="homepage-container">
       <div className="homepage-header">
@@ -12,7 +12,7 @@ const HomePage = () => {
         <p className="homepage-subtitle">Odkrywaj, wyszukuj i dodawaj wydarzenia w swojej okolicy.</p>
       </div>
       <div className="homepage-map">
-        <MapContainer />
+        <MapContainer filters={filters} />
       </div>
     </div>
   );

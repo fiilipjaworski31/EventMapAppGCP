@@ -1,4 +1,4 @@
-/* EventDetailsPage.css - Prosty i czytelny */
+/* EventDetailsPage.css - Rozbudowana wersja */
 
 .page-background {
   min-height: 100vh;
@@ -7,204 +7,350 @@
 }
 
 .event-details-container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   background: white;
-  padding: 30px;
-  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Nagłówek wydarzenia */
+/* Event Image Section */
+.event-image-section {
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  position: relative;
+}
+
+.event-main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.event-main-image:hover {
+  transform: scale(1.05);
+}
+
+/* Event Header */
 .event-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  padding: 30px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .event-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  color: #000;
-  margin-bottom: 10px;
+  color: #1a202c;
+  margin: 0 0 25px 0;
+  line-height: 1.2;
 }
 
-.event-meta {
-  color: #000;
-  font-size: 1rem;
-  display: flex;
-  justify-content: center;
+/* Meta Information Grid */
+.event-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
-  flex-wrap: wrap;
+  margin-top: 20px;
 }
 
-.event-separator {
-  display: none;
+.meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Główna treść */
+.meta-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.meta-icon {
+  font-size: 1.5rem;
+  min-width: 24px;
+  text-align: center;
+}
+
+.meta-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-content strong {
+  color: #2d3748;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-content span {
+  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.event-link {
+  color: #3182ce;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.event-link:hover {
+  color: #2c5aa0;
+  text-decoration: underline;
+}
+
+/* Main Content */
 .event-main {
-  color: #000;
+  padding: 30px;
 }
 
 .event-main section {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .section-title {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #000;
-  margin-bottom: 15px;
-  border-bottom: 2px solid #000;
-  padding-bottom: 5px;
+  color: #2d3748;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #3182ce;
   display: inline-block;
 }
 
-/* Opis wydarzenia */
+/* Event Description */
 .event-description {
-  font-size: 1rem;
-  color: #000;
-  line-height: 1.5;
-  padding: 20px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: #f7fafc;
+  padding: 25px;
+  border-radius: 10px;
+  border-left: 4px solid #3182ce;
+  line-height: 1.6;
 }
 
-/* Sekcja recenzji */
+.event-description p {
+  margin: 0;
+  color: #4a5568;
+  font-size: 1.1rem;
+}
+
+.no-description {
+  color: #a0aec0 !important;
+  font-style: italic;
+}
+
+/* Additional Event Information */
+.event-info-section {
+  background: #f9fafb;
+  padding: 25px;
+  border-radius: 10px;
+  margin: 30px 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.info-item strong {
+  color: #2d3748;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item span {
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+/* Reviews Section */
 .reviews-container {
-  background: #f9f9f9;
-  padding: 20px;
-  border: 1px solid #ddd;
+  background: #f7fafc;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
 }
 
 .no-reviews {
   text-align: center;
-  padding: 30px;
-  color: #666;
+  padding: 40px;
+  color: #718096;
 }
 
 .no-reviews p {
   margin: 10px 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .no-reviews p:first-child {
   font-weight: bold;
-  color: #000;
+  color: #4a5568;
 }
 
-/* Formularz logowania */
+/* Review Form Section */
+.review-form-section {
+  background: #f7fafc;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.user-has-review {
+  text-align: center;
+  padding: 30px;
+  background: #e6fffa;
+  border: 1px solid #81e6d9;
+  border-radius: 8px;
+}
+
+.user-has-review p {
+  margin: 0;
+  font-size: 1rem;
+  color: #234e52;
+  font-style: italic;
+}
+
+/* Login Prompt */
 .login-prompt {
   text-align: center;
   padding: 30px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: #edf2f7;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
 }
 
 .login-prompt p {
   margin: 0 0 20px 0;
-  font-size: 1rem;
-  color: #000;
+  font-size: 1.1rem;
+  color: #4a5568;
 }
 
 .login-button {
-  padding: 10px 20px;
-  background: #007cba;
+  padding: 12px 24px;
+  background: #3182ce;
   color: white;
   border: none;
+  border-radius: 6px;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .login-button:hover {
-  background: #005a87;
+  background: #2c5aa0;
+  transform: translateY(-1px);
 }
 
-/* Formularz recenzji */
-.review-form {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  padding: 20px;
-}
-
-.review-form textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  color: #000;
-  background: white;
-  font-family: inherit;
-}
-
-.review-form textarea:focus {
-  outline: none;
-  border-color: #007cba;
-}
-
-.review-form button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background: #007cba;
-  color: white;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.review-form button:hover {
-  background: #005a87;
-}
-
-.review-form button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-/* Stany błędów */
+/* Error and Loading States */
 .loading-spinner,
 .error-message,
 .not-found {
   text-align: center;
-  padding: 40px;
+  padding: 60px 40px;
 }
 
 .loading-spinner p {
-  font-size: 1rem;
-  color: #000;
+  font-size: 1.2rem;
+  color: #4a5568;
 }
 
 .error-message h2,
 .not-found h2 {
-  color: #000;
-  font-size: 1.5rem;
-  margin-bottom: 10px;
+  color: #e53e3e;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
 }
 
 .error-message p,
 .not-found p {
-  color: #000;
-  font-size: 1rem;
+  color: #4a5568;
+  font-size: 1.1rem;
 }
 
-/* Responsywność */
+/* Responsive Design */
 @media (max-width: 768px) {
   .page-background {
     padding: 10px;
   }
   
   .event-details-container {
+    border-radius: 8px;
+  }
+  
+  .event-header {
     padding: 20px;
   }
   
   .event-title {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
   
-  .event-meta {
-    flex-direction: column;
-    gap: 10px;
+  .event-meta-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .event-main {
+    padding: 20px;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+  }
+  
+  .event-image-section {
+    height: 250px;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-header {
+    padding: 15px;
+  }
+  
+  .event-title {
+    font-size: 1.7rem;
+  }
+  
+  .event-main {
+    padding: 15px;
+  }
+  
+  .event-image-section {
+    height: 200px;
+  }
+  
+  .meta-item {
+    padding: 12px;
   }
 }

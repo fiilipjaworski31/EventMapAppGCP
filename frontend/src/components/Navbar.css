@@ -1,45 +1,64 @@
+/* frontend/src/components/Navbar.css */
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2.5rem;
-  background: linear-gradient(90deg, #232526 0%, #414345 100%);
-  color: #fff;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  border-radius: 0 0 16px 16px;
+  padding: 0 2rem;
+  height: 60px;
+  background-color: #20232a;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.navbar-brand {
-  font-size: 2rem;
+.nav-logo {
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #fff;
+  color: #61dafb;
   text-decoration: none;
-  letter-spacing: 2px;
-  transition: color 0.2s;
 }
 
-.navbar-brand:hover {
-  color: #ffd700;
+.nav-link {
+  color: white;
+  text-decoration: none;
+  margin: 0 1rem;
+  padding: 0.5rem;
+  transition: color 0.2s ease-in-out;
 }
 
-.nav-links {
+.nav-link:hover, .nav-link.active {
+  color: #61dafb;
+}
+
+.nav-right {
   display: flex;
   align-items: center;
 }
 
-.nav-links a {
-  color: #fff;
-  text-decoration: none;
-  margin-left: 28px;
-  font-size: 1.08rem;
-  padding: 8px 16px;
-  border-radius: 6px;
-  transition: background 0.2s, color 0.2s;
+.nav-search {
+  position: relative;
+  margin-right: 1rem;
 }
 
-.nav-links a:hover {
-  background: #ffd700;
-  color: #232526;
-  text-decoration: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+.search-toggle-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.search-form-popup {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background-color: #282c34;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 100;
 }

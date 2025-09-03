@@ -7,52 +7,42 @@ functions.cloudEvent('fetchTicketmasterEvents', async (cloudEvent) => {
   console.log('Starting to fetch events from Ticketmaster...');
   
   try {
-    // --- 1. Read all required configuration from environment variables ---
     const apiKey = process.env.TICKETMASTER_API_KEY;
     const instanceConnectionName = process.env.INSTANCE_CONNECTION_NAME;
-    const dbPassword = process.env.DB_PASSWORD; // Injected securely by the --set-secrets flag
+    const dbPassword = process.env.DB_PASSWORD;
 
-    // Check if all variables are present
     if (!apiKey || !instanceConnectionName || !dbPassword) {
       throw new Error('One or more required environment variables are missing!');
     }
     
-    // --- 2. Fetch data from the external API ---
-    const apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${apiKey}&city=Warsaw&countryCode=PL&size=50`;
+    // --- CHANGE #1: Request additional fields from the API ---
+    const apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${apiKey}&city=Warsaw&countryCode=PL&size=50&fields=id,name,info,pleaseNote,url,images,dates,_embedded`;
 
     const response = await axios.get(apiUrl);
     if (!response.data._embedded || !response.data._embedded.events) {
       console.log('No new events found in the API response.');
-      return; // End execution if no events are found
+      return;
     }
     const eventsFromApi = response.data._embedded.events;
     console.log(`Successfully fetched ${eventsFromApi.length} events!`);
-    
-    // DEBUG: Log sample event structure
-    if (eventsFromApi.length > 0) {
-      console.log('Sample event structure:', JSON.stringify(eventsFromApi[0], null, 2));
-    }
 
-    // --- 3. Connect to the database using Knex ---
     const db = knex({
       client: 'pg',
       connection: {
         user: 'postgres',
         password: dbPassword,
         database: 'eventsdb',
-        host: `/cloudsql/${instanceConnectionName}`, // Use the secure Unix socket
+        host: `/cloudsql/${instanceConnectionName}`,
       }
     });
 
-    // --- 4. Process and save events to the database ---
     console.log('Processing and saving events...');
     let eventsSaved = 0;
+    let eventsUpdated = 0;
     let eventsSkipped = 0;
     
     for (const event of eventsFromApi) {
       try {
-        // --- WALIDACJA DANYCH ---
-        // Sprawdź czy event ma wymagane dane czasowe
         const startDateTime = event.dates?.start?.dateTime || event.dates?.start?.localDate;
         if (!startDateTime) {
           console.log(`Skipping event "${event.name}" - missing start time`);
@@ -60,7 +50,6 @@ functions.cloudEvent('fetchTicketmasterEvents', async (cloudEvent) => {
           continue;
         }
 
-        // Sprawdź czy event ma dane lokalizacyjne
         const venue = event._embedded?.venues?.[0];
         const latitude = parseFloat(venue?.location?.latitude);
         const longitude = parseFloat(venue?.location?.longitude);
@@ -71,54 +60,54 @@ functions.cloudEvent('fetchTicketmasterEvents', async (cloudEvent) => {
           continue;
         }
 
-        // --- MAPOWANIE DANYCH ---
+        // --- CHANGE #2: Map the new fields ---
         const newEvent = {
           external_id: event.id,
           title: event.name,
           description: event.info || event.pleaseNote || `More info at: ${event.url}`,
-          start_time: startDateTime, // Już zwalidowane powyżej
+          start_time: startDateTime,
           end_time: event.dates?.end?.dateTime || event.dates?.end?.localDate || null,
           latitude: latitude,
           longitude: longitude,
           address: venue?.address?.line1 || venue?.name || 'Address not available',
-          creator_id: 1, // Assign a system user ID for imported events
+          creator_id: 1,
+          // New fields added here:
+          url: event.url,
+          image_url: event.images?.find(img => img.ratio === '16_9')?.url || event.images?.[0]?.url, // Find a 16:9 image, or fallback to the first one
+          venue_name: venue?.name,
         };
 
-        // Dodatkowa walidacja przed zapisem
         if (!newEvent.external_id || !newEvent.title) {
-          console.log(`Skipping event - missing required fields: external_id=${newEvent.external_id}, title=${newEvent.title}`);
+          console.log(`Skipping event - missing required fields`);
           eventsSkipped++;
           continue;
         }
 
-        // --- ZAPIS DO BAZY ---
+        // --- CHANGE #3: Use .merge() to update existing events ---
         const result = await db('events')
           .insert(newEvent)
           .onConflict('external_id')
-          .ignore();
+          .merge(); // This will UPDATE the row if the external_id already exists
         
         if (result.rowCount > 0) {
-          eventsSaved++;
-          console.log(`✅ Saved event: "${newEvent.title}"`);
-        } else {
-          console.log(`ℹ️ Event "${newEvent.title}" already exists (skipped due to duplicate external_id)`);
+            // In PostgreSQL with .merge(), it's hard to tell if it was an INSERT or UPDATE.
+            // We can just count all successful operations.
+            eventsSaved++;
         }
 
       } catch (eventError) {
         console.error(`Error processing event "${event.name}":`, eventError);
         eventsSkipped++;
-        // Continue with next event instead of failing the entire function
         continue;
       }
     }
 
-    console.log(`✅ Finished processing. Saved ${eventsSaved} new events, skipped ${eventsSkipped} events.`);
+    console.log(`✅ Finished processing. Processed ${eventsSaved + eventsSkipped} events. Saved/Updated ${eventsSaved} events, skipped ${eventsSkipped} events.`);
     
-    // Close database connection
     await db.destroy();
 
   } catch (error) {
     console.error('An error occurred:', error);
-    throw error; // Re-throw the error to ensure the function execution is marked as failed
+    throw error;
   }
 });

@@ -1,44 +1,62 @@
 import axios from 'axios';
 
-// Pobieramy bazowy URL naszego backendu ze zmiennych środowiskowych Vite
+// Get the base URL for the backend from environment variables
 const API_URL = import.meta.env.VITE_API_URL;
 
 /**
- * Pobiera wszystkie wydarzenia z API.
- * @returns {Promise} Obietnica Axios z listą wydarzeń.
+ * Fetches all events from the API, with optional filtering.
+ * @param {object} filters - An object with filters, e.g., { search: 'concert', date: '2025-09-10' }
+ * @returns {Promise} An Axios promise with the list of events.
  */
-const getAllEvents = () => {
-  return axios.get(`${API_URL}/api/events`);
-};
+const getAllEvents = (filters = {}) => {
+  // Use URLSearchParams to easily build the query string (e.g., ?search=concert&date=...)
+  const params = new URLSearchParams();
+  if (filters.search) {
+    params.append('search', filters.search);
+  }
+  if (filters.date) {
+    params.append('date', filters.date);
+  }
 
-/**
- * Tworzy nowe wydarzenie, wysyłając dane do API.
- * @param {object} eventData - Dane nowego wydarzenia (np. { title, description, ... }).
- * @param {string} token - Token JWT zalogowanego użytkownika.
- * @returns {Promise} Obietnica Axios z danymi nowo utworzonego wydarzenia.
- */
-const createEvent = (eventData, token) => {
-  return axios.post(`${API_URL}/api/events`, eventData, {
-    headers: {
-      // Dołączamy token do nagłówka Authorization, aby backend wiedział, kto tworzy wydarzenie
-      Authorization: `Bearer ${token}`
-    }
+  const request = axios.get(`${API_URL}/api/events`, { params });
+  
+  // Log the raw data to the console for easy inspection
+  request.then(response => {
+    console.log("Data received from events API:", response.data);
   });
+  
+  return request;
 };
 
 /**
- * Pobiera jedno wydarzenie po jego ID.
- * @param {string|number} id - ID wydarzenia.
- * @returns {Promise} Obietnica Axios z danymi wydarzenia.
+ * Fetches a single event by its ID.
+ * @param {string|number} id - The ID of the event.
+ * @returns {Promise} An Axios promise with the event data.
  */
 const getEventById = (id) => {
   return axios.get(`${API_URL}/api/events/${id}`);
 };
 
+/**
+ * Creates a new event by sending data to the API.
+ * @param {object} eventData - The data for the new event.
+ * @param {string} token - The authenticated user's JWT.
+ * @returns {Promise} An Axios promise with the newly created event data.
+ */
+const createEvent = (eventData, token) => {
+  return axios.post(`${API_URL}/api/events`, eventData, {
+    headers: {
+      // Include the token for authorization
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
+
+// Export an object containing all service functions
 const eventService = {
   getAllEvents,
+  getEventById,
   createEvent,
-  getEventById, // <-- Dodaj eksport
 };
 
 export default eventService;

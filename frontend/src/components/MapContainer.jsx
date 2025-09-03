@@ -1,50 +1,46 @@
+// frontend/src/components/MapContainer.jsx
+
 import React, { useState, useEffect } from 'react';
 import { APIProvider, Map, AdvancedMarker, InfoWindow } from '@vis.gl/react-google-maps';
 import { Link } from 'react-router-dom';
 import eventService from '../services/event.service';
-import './MapContainer.css';
-
-const containerStyle = {
-  width: '100%',
-  height: '60vh'
-};
 
 const center = {
-  lat: 52.2297, // Centrum Warszawy
+  lat: 52.2297, // Warsaw
   lng: 21.0122
 };
 
-const MapContainer = () => {
+const MapContainer = ({ filters }) => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
-    eventService.getAllEvents()
+    console.log("Fetching events with filters:", filters);
+    eventService.getAllEvents(filters)
       .then(response => {
         setEvents(response.data);
       })
       .catch(error => {
-        console.error("Błąd podczas pobierania wydarzeń!", error);
+        console.error("Error fetching events!", error);
       });
-  }, []);
+  }, [filters]); // Re-run effect whenever filters change
 
   return (
-    // APIProvider to nowy, wymagany komponent opakowujący mapę
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-  <div className="map-container">
+      <div style={{ width: '100%', height: 'calc(100vh - 60px)' }}>
         <Map
           defaultCenter={center}
           defaultZoom={12}
-          mapId={import.meta.env.VITE_GOOGLE_MAPS_ID} // Map ID jest tutaj kluczowe
+          mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
           gestureHandling={'greedy'}
           disableDefaultUI={true}
         >
           {events.map(event => (
             <AdvancedMarker
               key={event.id}
-              position={{ 
-                lat: parseFloat(event.latitude), // <-- POPRAWIONE
-                lng: parseFloat(event.longitude) // <-- POPRAWIONE
+              position={{
+                lat: parseFloat(event.latitude),
+                lng: parseFloat(event.longitude)
               }}
               onClick={() => setSelectedEvent(event)}
             />
@@ -55,10 +51,10 @@ const MapContainer = () => {
               position={{ lat: parseFloat(selectedEvent.latitude), lng: parseFloat(selectedEvent.longitude) }}
               onCloseClick={() => setSelectedEvent(null)}
             >
-              <div className="custom-info-window">
+              <div>
                 <h4>{selectedEvent.title}</h4>
                 <p>{selectedEvent.address}</p>
-                <Link to={`/event/${selectedEvent.id}`}>Zobacz szczegóły</Link>
+                <Link to={`/event/${selectedEvent.id}`}>See Details</Link>
               </div>
             </InfoWindow>
           )}

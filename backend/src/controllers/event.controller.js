@@ -4,7 +4,13 @@ const User = require('../models/user.model');
 // GET /api/events
 exports.getAllEvents = async (req, res) => {
   try {
-    const events = await Event.findAll();
+    // Read search and date from the query string (e.g., /api/events?search=rock&date=2025-09-10)
+    const filters = {
+      search: req.query.search,
+      date: req.query.date,
+    };
+    
+    const events = await Event.findAll(filters);
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ message: 'Błąd podczas pobierania wydarzeń.', error });

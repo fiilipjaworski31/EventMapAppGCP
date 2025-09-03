@@ -1,9 +1,24 @@
 const knex = require('../config/database'); //
 
 // Pobiera wszystkie wydarzenia
-const findAll = () => {
-  // ... reszta funkcji bez zmian
-  return knex('events').select('*');
+const findAll = (filters = {}) => {
+  const query = knex('events').select('*');
+
+  // Add a search filter (searches title and description)
+  if (filters.search) {
+    query.where(function() {
+      this.where('title', 'ilike', `%${filters.search}%`)
+        .orWhere('description', 'ilike', `%${filters.search}%`);
+    });
+  }
+
+  // Add a date filter
+  if (filters.date) {
+    // This query finds events that start on the given date
+    query.whereRaw('DATE(start_time) = ?', [filters.date]);
+  }
+
+  return query;
 };
 
 // Znajduje jedno wydarzenie po jego ID

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { APIProvider, Map, AdvancedMarker, InfoWindow } from '@vis.gl/react-google-maps';
 import { Link } from 'react-router-dom';
 import eventService from '../services/event.service';
+import './MapContainer.css';
 
 const center = {
   lat: 52.2297, // Warsaw
@@ -67,7 +68,7 @@ const MapContainer = ({ filters }) => {
               position={{ lat: parseFloat(selectedEvent.latitude), lng: parseFloat(selectedEvent.longitude) }}
               onCloseClick={() => setSelectedEvent(null)}
             >
-              <div style={{ maxWidth: '280px', padding: '8px' }}>
+              <div style={{ maxWidth: '280px', padding: '2px' }}>
                 {/* Zdjęcie wydarzenia */}
                 {selectedEvent.image_url && (
                   <img 

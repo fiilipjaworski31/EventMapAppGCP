@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 
 import eventService from '../services/event.service';
 import reviewService from '../services/review.service';
+import interestedService from '../services/interested.service';
 
 import ReviewList from '../components/ReviewList';
 import ReviewForm from '../components/ReviewForm';
@@ -19,6 +20,7 @@ const EventDetailsPage = () => {
   const [error, setError] = useState('');
   const [editingReview, setEditingReview] = useState(null);
   const [userReview, setUserReview] = useState(null);
+  const [isInterested, setIsInterested] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -56,6 +58,19 @@ const EventDetailsPage = () => {
         setLoading(false);
       }
     };
+    const checkIfInterested = async () => {
+        if (currentUser) {
+            try {
+                const token = await currentUser.getIdToken();
+                const response = await interestedService.getInterested(token);
+                const isEventInList = response.data.some(e => e.id === parseInt(id, 10));
+                setIsInterested(isEventInList);
+            } catch (error) {
+                console.error("Błąd sprawdzania zainteresowań:", error);
+            }
+        }
+    }
+    checkIfInterested();
 
     fetchData();
   }, [id, currentUser]);
@@ -94,6 +109,21 @@ const EventDetailsPage = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleInterestToggle = async () => {
+    if (!currentUser) return;
+    try {
+        const token = await currentUser.getIdToken();
+        if (isInterested) {
+            await interestedService.removeInterested(id, token);
+        } else {
+            await interestedService.addInterested(id, token);
+        }
+        setIsInterested(!isInterested);
+    } catch (error) {
+        console.error("Błąd zmiany zainteresowania:", error);
+    }
   };
 
   if (loading) {
@@ -152,7 +182,14 @@ const EventDetailsPage = () => {
         )}
 
         <header className="event-header">
-          <h1 className="event-title">{event.title}</h1>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                <h1 className="event-title">{event.title}</h1>
+                {currentUser && (
+                    <button onClick={handleInterestToggle} className={`interest-button ${isInterested ? 'active' : ''}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={isInterested ? 'red' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                )}
+            </div>
           
           {/* Event Meta Information */}
           <div className="event-meta-grid">

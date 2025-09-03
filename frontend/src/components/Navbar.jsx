@@ -1,10 +1,11 @@
 // frontend/src/components/Navbar.jsx
 
-import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, NavLink, useNavigate} from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import interestedService from '../services/interested.service';
 import './Navbar.css'; // We'll create this CSS file for styling
 
 // A simple SVG component for the search icon
@@ -15,11 +16,36 @@ const SearchIcon = () => (
   </svg>
 );
 
+const HeartIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    </svg>
+);
+
 const Navbar = ({ onSearch }) => {
   const { currentUser } = useAuth(); // Pobierz informacje o aktualnym użytkowniku
   const [showSearch, setShowSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
+
+  const [showInterested, setShowInterested] = useState(false); // <-- NOWY STAN
+  const [interestedEvents, setInterestedEvents] = useState([]); // <-- NOWY STAN
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currentUser && showInterested) {
+      const fetchInterested = async () => {
+        try {
+          const token = await currentUser.getIdToken();
+          const response = await interestedService.getInterested(token);
+          setInterestedEvents(response.data);
+        } catch (error) {
+          console.error("Błąd podczas pobierania polubionych wydarzeń:", error);
+        }
+      };
+      fetchInterested();
+    }
+  }, [currentUser, showInterested]);
   
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -47,8 +73,32 @@ const Navbar = ({ onSearch }) => {
           <NavLink to="/add-event" className="nav-link">Dodaj Wydarzenie</NavLink>
         )}
       </div>
+      
 
       <div className="nav-right">
+        {/* Przycisk zainteresowań - tylko dla zalogowanych */}
+        {currentUser && (
+            <div className="nav-interested">
+                <button onClick={() => setShowInterested(!showInterested)} className="interested-toggle-button">
+                    <HeartIcon />
+                </button>
+                {showInterested && (
+                    <div className="interested-popup">
+                        {interestedEvents.length > 0 ? (
+                            <ul>
+                                {interestedEvents.map(event => (
+                                    <li key={event.id} onClick={() => handleEventClick(event.id)}>
+                                        {event.title}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>Brak polubionych wydarzeń.</p>
+                        )}
+                    </div>
+                )}
+            </div>
+          )}
         <div className="nav-search">
           <button onClick={() => setShowSearch(!showSearch)} className="search-toggle-button">
             <SearchIcon />

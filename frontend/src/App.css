@@ -7,17 +7,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.main-content {
-  padding-bottom: 80px; /* Zapewnia miejsce na stopkę */
-}
-
 .App {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.main-content {
-  flex: 1; /* To sprawi, że główna sekcja zajmie całą dostępną przestrzeń */
-  padding-bottom: 80px; /* Zapewnia miejsce na stopkę */
+.main-content-full-page {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(120deg, #0f172a 0%, #1e1b4b 100%);
 }

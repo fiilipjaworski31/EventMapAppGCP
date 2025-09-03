@@ -54,8 +54,11 @@
   position: absolute;
   top: 45px;
   right: 0;
-  background-color: #282c34;
-  padding: 1rem;
+  background-color: #32343b;
+  padding-top: 0.5rem;
+  padding-bottom: 0rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
@@ -83,4 +86,66 @@
     display: flex;
     justify-content: flex-start; /* Upewnia się, że logo jest po lewej */
     align-items: center;
+}
+
+.nav-interested {
+  position: relative;
+  margin-right: 1rem;
+}
+
+.interested-toggle-button {
+  background: none;
+  border: none;
+  color: rgb(197, 18, 116);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.interested-popup {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  left: auto;
+  background-color: #282c34;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  width: 250px;
+}
+
+.interested-popup ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.interested-popup li {
+  padding: 0.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid #444;
+}
+
+.interested-popup li:hover {
+  background-color: #333;
+}
+
+.interested-popup p {
+  text-align: center;
+  color: #888;
+}
+
+.search-form-popup input[type="text"],
+.search-form-popup input[type="date"] {
+  width: 150px;
+  height: 28px;
+  padding: 0.02rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.search-form-popup button[type="submit"] {
+  padding: 0.5rem 0.4rem;
+  font-size: 0.9rem;
 }

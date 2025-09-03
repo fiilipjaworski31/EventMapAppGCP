@@ -29,7 +29,7 @@ function App() {
       <div className="App">
         {/* Navbar otrzymuje funkcję 'onSearch' jako prop */}
         <Navbar onSearch={handleSearch} />
-        <main className="main-content">
+        <main className="main-content-full-page">
           <Routes>
             {/* HomePage otrzymuje aktualny stan filtrów jako prop */}
             <Route path="/" element={<HomePage filters={filters} />} />

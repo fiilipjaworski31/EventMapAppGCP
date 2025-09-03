@@ -47,3 +47,22 @@
     border-radius: 20px;
   }
 }
+
+/* Celuje w przycisk po atrybucie 'title' (bardziej stabilne) */
+button[title="Zamknij"] span,
+button[title="Close"] span {
+  background-color: #333 !important;
+}
+
+/* Celuje w przycisk po atrybucie 'aria-label' (jako alternatywa) */
+button[aria-label="Zamknij"] span,
+button[aria-label="Close"] span {
+  background-color: #333 !important;
+}
+
+/* Czasem Google Maps używa tagu <img> zamiast <span> wewnątrz przycisku */
+button[title="Zamknij"] img,
+button[title="Close"] img {
+  /* Używamy filtra, aby zmienić kolor obrazka na ciemny */
+  filter: invert(1);
+}

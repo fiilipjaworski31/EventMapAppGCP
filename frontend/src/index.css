@@ -28,6 +28,11 @@ body {
   min-height: 100vh;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
@@ -58,7 +63,7 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
+    color: #2737c7;
   }
   button {
     background-color: #f9f9f9;

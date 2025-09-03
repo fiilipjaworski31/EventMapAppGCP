@@ -57,9 +57,11 @@ const EventDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="event-details-container">
-        <div className="loading-spinner">
-          <p>Ładowanie danych wydarzenia...</p>
+      <div className="page-background">
+        <div className="event-details-container">
+          <div className="loading-spinner">
+            <p>Ładowanie danych wydarzenia...</p>
+          </div>
         </div>
       </div>
     );
@@ -67,10 +69,12 @@ const EventDetailsPage = () => {
 
   if (error) {
     return (
-      <div className="event-details-container">
-        <div className="error-message">
-          <h2>Wystąpił błąd</h2>
-          <p>{error}</p>
+      <div className="page-background">
+        <div className="event-details-container">
+          <div className="error-message">
+            <h2>Wystąpił błąd</h2>
+            <p>{error}</p>
+          </div>
         </div>
       </div>
     );
@@ -78,18 +82,20 @@ const EventDetailsPage = () => {
 
   if (!event) {
     return (
-      <div className="event-details-container">
-        <div className="not-found">
-          <h2>Nie znaleziono wydarzenia</h2>
-          <p>Wydarzenie o podanym identyfikatorze nie istnieje.</p>
+      <div className="page-background">
+        <div className="event-details-container">
+          <div className="not-found">
+            <h2>Nie znaleziono wydarzenia</h2>
+            <p>Wydarzenie o podanym identyfikatorze nie istnieje.</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="event-details-container">
-      <div className="event-details-content">
+    <div className="page-background">
+      <div className="event-details-container">
         <header className="event-header">
           <h1 className="event-title">{event.title}</h1>
           <div className="event-meta">
@@ -101,14 +107,22 @@ const EventDetailsPage = () => {
 
         <main className="event-main">
           <section className="event-description-section">
-            <h2>Opis wydarzenia</h2>
+            <h2 className="section-title">Opis wydarzenia</h2>
             <div className="event-description">
-              {event.description || 'Brak opisu dla tego wydarzenia.'}
+              {event.description ? (
+                event.description.includes('<a href=') ? (
+                  <div dangerouslySetInnerHTML={{ __html: event.description }} />
+                ) : (
+                  event.description
+                )
+              ) : (
+                'Brak opisu dla tego wydarzenia.'
+              )}
             </div>
           </section>
 
           <section className="reviews-section">
-            <h2 className="reviews-title">
+            <h2 className="section-title">
               Recenzje ({reviews.length})
             </h2>
             
@@ -125,7 +139,7 @@ const EventDetailsPage = () => {
           </section>
 
           <section className="review-form-section">
-            <h2>Dodaj recenzję</h2>
+            <h2 className="section-title">Dodaj recenzję</h2>
             {currentUser ? (
               <ReviewForm 
                 eventId={id} 

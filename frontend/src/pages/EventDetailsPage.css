@@ -1,87 +1,210 @@
-/* EventDetailsPage.css - Profesjonalny, nowoczesny styl dla strony szczegółów wydarzenia */
+/* EventDetailsPage.css - Prosty i czytelny */
+
+.page-background {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20px;
+}
 
 .event-details-container {
-  max-width: 900px;
-  margin: 40px auto 0 auto;
-  padding: 32px 24px;
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.10);
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border: 1px solid #ddd;
+}
+
+/* Nagłówek wydarzenia */
+.event-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
 }
 
 .event-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #2d3a4b;
-  margin-bottom: 12px;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 10px;
 }
 
 .event-meta {
-  color: #6c7a89;
-  font-size: 1.1rem;
-  margin-bottom: 18px;
-}
-
-.event-description {
-  font-size: 1.15rem;
-  color: #34495e;
-  margin-bottom: 24px;
-  line-height: 1.6;
-}
-
-.reviews-section {
-  margin-top: 24px;
-}
-
-.reviews-title {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #2d3a4b;
-  margin-bottom: 16px;
-}
-
-.review-list {
+  color: #000;
+  font-size: 1rem;
   display: flex;
-  flex-direction: column;
-  gap: 18px;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.review-item {
-  background: #f5f7fa;
-  border-radius: 10px;
-  padding: 16px 18px;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+.event-separator {
+  display: none;
 }
 
-.review-author {
-  font-weight: 600;
-  color: #2980b9;
-  margin-bottom: 4px;
+/* Główna treść */
+.event-main {
+  color: #000;
 }
 
-.review-content {
-  color: #34495e;
-  font-size: 1.05rem;
+.event-main section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 5px;
+  display: inline-block;
+}
+
+/* Opis wydarzenia */
+.event-description {
+  font-size: 1rem;
+  color: #000;
+  line-height: 1.5;
+  padding: 20px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+}
+
+/* Sekcja recenzji */
+.reviews-container {
+  background: #f9f9f9;
+  padding: 20px;
+  border: 1px solid #ddd;
+}
+
+.no-reviews {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+}
+
+.no-reviews p {
+  margin: 10px 0;
+  font-size: 1rem;
+}
+
+.no-reviews p:first-child {
+  font-weight: bold;
+  color: #000;
+}
+
+/* Formularz logowania */
+.login-prompt {
+  text-align: center;
+  padding: 30px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+}
+
+.login-prompt p {
+  margin: 0 0 20px 0;
+  font-size: 1rem;
+  color: #000;
+}
+
+.login-button {
+  padding: 10px 20px;
+  background: #007cba;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background: #005a87;
 }
 
 /* Formularz recenzji */
-.review-form-section {
-  margin-top: 32px;
-  padding: 24px 18px;
-  background: #f9fafb;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+.review-form {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 20px;
+}
+
+.review-form textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  color: #000;
+  background: white;
+  font-family: inherit;
+}
+
+.review-form textarea:focus {
+  outline: none;
+  border-color: #007cba;
+}
+
+.review-form button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #007cba;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.review-form button:hover {
+  background: #005a87;
+}
+
+.review-form button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Stany błędów */
+.loading-spinner,
+.error-message,
+.not-found {
+  text-align: center;
+  padding: 40px;
+}
+
+.loading-spinner p {
+  font-size: 1rem;
+  color: #000;
+}
+
+.error-message h2,
+.not-found h2 {
+  color: #000;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.error-message p,
+.not-found p {
+  color: #000;
+  font-size: 1rem;
 }
 
 /* Responsywność */
-@media (max-width: 700px) {
-  .event-details-container {
-    padding: 16px 4vw;
+@media (max-width: 768px) {
+  .page-background {
+    padding: 10px;
   }
+  
+  .event-details-container {
+    padding: 20px;
+  }
+  
   .event-title {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+  }
+  
+  .event-meta {
+    flex-direction: column;
+    gap: 10px;
   }
 }

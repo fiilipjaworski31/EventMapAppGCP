@@ -10,3 +10,14 @@ body {
 .main-content {
   padding-bottom: 80px; /* Zapewnia miejsce na stopkę */
 }
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1; /* To sprawi, że główna sekcja zajmie całą dostępną przestrzeń */
+  padding-bottom: 80px; /* Zapewnia miejsce na stopkę */
+}

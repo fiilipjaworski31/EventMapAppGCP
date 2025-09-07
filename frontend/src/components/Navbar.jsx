@@ -1,12 +1,12 @@
-// frontend/src/components/Navbar.jsx
-
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate} from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import interestedService from '../services/interested.service';
-import './Navbar.css'; // We'll create this CSS file for styling
+import FriendsModal from './FriendsModal';
+import FriendEventsModal from './FriendEventsModal';
+import './Navbar.css'; 
 
 // A simple SVG component for the search icon
 const SearchIcon = () => (
@@ -22,14 +22,29 @@ const HeartIcon = () => (
     </svg>
 );
 
+const UsersIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+);
+
 const Navbar = ({ onSearch }) => {
   const { currentUser } = useAuth(); // Pobierz informacje o aktualnym użytkowniku
   const [showSearch, setShowSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
 
-  const [showInterested, setShowInterested] = useState(false); // <-- NOWY STAN
-  const [interestedEvents, setInterestedEvents] = useState([]); // <-- NOWY STAN
+  const [showInterested, setShowInterested] = useState(false);
+  const [interestedEvents, setInterestedEvents] = useState([]);
+  
+  // Nowe stany dla znajomych
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const [showFriendEventsModal, setShowFriendEventsModal] = useState(false);
+  const [selectedFriend, setSelectedFriend] = useState(null);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,73 +76,114 @@ const Navbar = ({ onSearch }) => {
     }
   };
 
-  return (
-    <nav className="navbar">
-      <div className="nav-left">
-        <Link to="/" className="nav-logo">EventMap</Link>
-      </div>
-      
-      <div className="nav-center">
-        {/* Pokazuj "Dodaj Wydarzenie" tylko dla zalogowanych użytkowników */}
-        {currentUser && (
-          <NavLink to="/add-event" className="nav-link">Dodaj Wydarzenie</NavLink>
-        )}
-      </div>
-      
+  // Obsługa kliknięcia na wydarzenie z listy ulubionych
+  const handleEventClick = (eventId) => {
+    setShowInterested(false);
+    navigate(`/event/${eventId}`);
+  };
 
-      <div className="nav-right">
-        {/* Przycisk zainteresowań - tylko dla zalogowanych */}
-        {currentUser && (
-            <div className="nav-interested">
-                <button onClick={() => setShowInterested(!showInterested)} className="interested-toggle-button">
-                    <HeartIcon />
-                </button>
-                {showInterested && (
-                    <div className="interested-popup">
-                        {interestedEvents.length > 0 ? (
-                            <ul>
-                                {interestedEvents.map(event => (
-                                    <li key={event.id} onClick={() => handleEventClick(event.id)}>
-                                        {event.title}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Brak polubionych wydarzeń.</p>
-                        )}
-                    </div>
-                )}
-            </div>
-          )}
-        <div className="nav-search">
-          <button onClick={() => setShowSearch(!showSearch)} className="search-toggle-button">
-            <SearchIcon />
-          </button>
-          {showSearch && (
-            <form onSubmit={handleSubmit} className="search-form-popup">
-              <input type="text" placeholder="Szukaj..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-              <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
-              <button type="submit">Filtruj</button>
-            </form>
+  // Obsługa kliknięcia na znajomego - otwiera modal z jego wydarzeniami
+  const handleViewFriendEvents = (friend) => {
+    setSelectedFriend(friend);
+    setShowFriendsModal(false);
+    setShowFriendEventsModal(true);
+  };
+
+  return (
+    <>
+      <nav className="navbar">
+        <div className="nav-left">
+          <Link to="/" className="nav-logo">EventMap</Link>
+        </div>
+        
+        <div className="nav-center">
+          {/* Pokazuj "Dodaj Wydarzenie" tylko dla zalogowanych użytkowników */}
+          {currentUser && (
+            <NavLink to="/add-event" className="nav-link">Dodaj Wydarzenie</NavLink>
           )}
         </div>
         
-        {/* Warunkowo wyświetlaj linki w zależności od stanu logowania */}
-        {currentUser ? (
-          <div className="nav-auth">
-            <span className="nav-username">Witaj, {currentUser.email}</span>
-            <button onClick={handleLogout} className="nav-link logout-button">
-              Wyloguj się
+
+        <div className="nav-right">
+          {/* Przycisk znajomych - tylko dla zalogowanych */}
+          {currentUser && (
+            <div className="nav-friends">
+              <button 
+                onClick={() => setShowFriendsModal(true)} 
+                className="friends-toggle-button"
+                title="Znajomi"
+              >
+                <UsersIcon />
+              </button>
+            </div>
+          )}
+
+          {/* Przycisk zainteresowań - tylko dla zalogowanych */}
+          {currentUser && (
+              <div className="nav-interested">
+                  <button onClick={() => setShowInterested(!showInterested)} className="interested-toggle-button">
+                      <HeartIcon />
+                  </button>
+                  {showInterested && (
+                      <div className="interested-popup">
+                          {interestedEvents.length > 0 ? (
+                              <ul>
+                                  {interestedEvents.map(event => (
+                                      <li key={event.id} onClick={() => handleEventClick(event.id)}>
+                                          {event.title}
+                                      </li>
+                                  ))}
+                              </ul>
+                          ) : (
+                              <p>Brak polubionych wydarzeń.</p>
+                          )}
+                      </div>
+                  )}
+              </div>
+            )}
+          <div className="nav-search">
+            <button onClick={() => setShowSearch(!showSearch)} className="search-toggle-button">
+              <SearchIcon />
             </button>
+            {showSearch && (
+              <form onSubmit={handleSubmit} className="search-form-popup">
+                <input type="text" placeholder="Szukaj..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+                <button type="submit">Filtruj</button>
+              </form>
+            )}
           </div>
-        ) : (
-          <div className="nav-auth">
-            <NavLink to="/register" className="nav-link">Rejestracja</NavLink>
-            <NavLink to="/login" className="nav-link">Zaloguj się</NavLink>
-          </div>
-        )}
-      </div>
-    </nav>
+          
+          {/* Warunkowo wyświetlaj linki w zależności od stanu logowania */}
+          {currentUser ? (
+            <div className="nav-auth">
+              <span className="nav-username">Witaj, {currentUser.email}</span>
+              <button onClick={handleLogout} className="nav-link logout-button">
+                Wyloguj się
+              </button>
+            </div>
+          ) : (
+            <div className="nav-auth">
+              <NavLink to="/register" className="nav-link">Rejestracja</NavLink>
+              <NavLink to="/login" className="nav-link">Zaloguj się</NavLink>
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Modale */}
+      <FriendsModal 
+        isOpen={showFriendsModal} 
+        onClose={() => setShowFriendsModal(false)}
+        onViewFriendEvents={handleViewFriendEvents}
+      />
+      
+      <FriendEventsModal 
+        isOpen={showFriendEventsModal}
+        onClose={() => setShowFriendEventsModal(false)}
+        friend={selectedFriend}
+      />
+    </>
   );
 };
 

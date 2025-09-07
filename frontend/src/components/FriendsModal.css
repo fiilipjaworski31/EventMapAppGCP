@@ -1,0 +1,323 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #282c34;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.friends-modal {
+  max-width: 600px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #444;
+  background: #20232a;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #61dafb;
+  font-size: 1.5rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  color: #fff;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #444;
+}
+
+.tab {
+  flex: 1;
+  padding: 1rem;
+  background: #282c34;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #fff;
+  background: #333;
+}
+
+.tab.active {
+  color: #61dafb;
+  background: #20232a;
+  border-bottom: 2px solid #61dafb;
+}
+
+.tab-content {
+  padding: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.error-message {
+  background: #d32f2f;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.success-message {
+  background: #2e7d32;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.no-data {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  margin: 2rem 0;
+}
+
+/* Friends list styles */
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.friend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #20232a;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.friend-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.friend-username {
+  font-weight: bold;
+  color: #61dafb;
+  margin-bottom: 0.25rem;
+}
+
+.friend-email {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.friend-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-events-btn, .remove-friend-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.view-events-btn {
+  background: #61dafb;
+  color: #000;
+}
+
+.view-events-btn:hover {
+  background: #21a9c7;
+}
+
+.remove-friend-btn {
+  background: #d32f2f;
+  color: white;
+}
+
+.remove-friend-btn:hover {
+  background: #b71c1c;
+}
+
+/* Requests list styles */
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.request-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #20232a;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.request-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.request-username {
+  font-weight: bold;
+  color: #61dafb;
+  margin-bottom: 0.25rem;
+}
+
+.request-email {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.request-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.accept-btn, .decline-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.accept-btn {
+  background: #2e7d32;
+  color: white;
+}
+
+.accept-btn:hover {
+  background: #1b5e20;
+}
+
+.decline-btn {
+  background: #d32f2f;
+  color: white;
+}
+
+.decline-btn:hover {
+  background: #b71c1c;
+}
+
+/* Add friend form styles */
+.add-friend-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  color: #61dafb;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #20232a;
+  color: white;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #61dafb;
+}
+
+.form-group input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-friend-form button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem;
+  background: #61dafb;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-friend-form button[type="submit"]:hover:not(:disabled) {
+  background: #21a9c7;
+}
+
+.add-friend-form button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .friend-item, .request-item {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .friend-actions, .request-actions {
+    justify-content: center;
+  }
+}

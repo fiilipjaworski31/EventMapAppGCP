@@ -1,5 +1,3 @@
-// frontend/src/pages/AddEventPage.jsx
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import eventService from '../services/event.service';

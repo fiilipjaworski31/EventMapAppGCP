@@ -64,7 +64,7 @@ functions.cloudEvent('fetchTicketmasterEvents', async (cloudEvent) => {
         const newEvent = {
           external_id: event.id,
           title: event.name,
-          ddescription: event.info || event.pleaseNote || `More info at: <a href="${event.url}" target="_blank" rel="noopener noreferrer">Ticketmaster</a>`,
+          description: event.info || event.pleaseNote || `More info at: <a href="${event.url}" target="_blank" rel="noopener noreferrer">Ticketmaster</a>`,
           start_time: startDateTime,
           end_time: event.dates?.end?.dateTime || event.dates?.end?.localDate || null,
           latitude: latitude,

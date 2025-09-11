@@ -6,12 +6,13 @@ exports.seed = async function(knex) {
   // Usuwa WSZYSTKICH istniejących użytkowników, aby uniknąć duplikatów
   await knex('users').del();
 
-  // Wstawia nowego użytkownika
+  // Wstawia nowego użytkownika z wymaganym username
   await knex('users').insert([
     {
       id: 1, 
       firebase_uid: 'XuHUuUmcDpOtIBO0ueKT42QDFt72', 
-      email: 'test@user.com'
+      email: 'test@user.com',
+      username: 'testuser' // DODANE: wymagane pole username
     }
   ]);
 };

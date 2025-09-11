@@ -1,12 +1,12 @@
 // frontend/src/components/Navbar.jsx
 
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate} from 'react-router-dom';
+import { Link, NavLink, useNavigate} from 'react-router-dom'; // DODANE: useNavigate
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import interestedService from '../services/interested.service';
-import './Navbar.css'; // We'll create this CSS file for styling
+import './Navbar.css';
 
 // A simple SVG component for the search icon
 const SearchIcon = () => (
@@ -23,14 +23,14 @@ const HeartIcon = () => (
 );
 
 const Navbar = ({ onSearch }) => {
-  const { currentUser } = useAuth(); // Pobierz informacje o aktualnym użytkowniku
+  const { currentUser } = useAuth();
+  const navigate = useNavigate(); // DODANE: hook useNavigate
   const [showSearch, setShowSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
 
-  const [showInterested, setShowInterested] = useState(false); // <-- NOWY STAN
-  const [interestedEvents, setInterestedEvents] = useState([]); // <-- NOWY STAN
-  const navigate = useNavigate();
+  const [showInterested, setShowInterested] = useState(false);
+  const [interestedEvents, setInterestedEvents] = useState([]);
 
   useEffect(() => {
     if (currentUser && showInterested) {
@@ -46,6 +46,12 @@ const Navbar = ({ onSearch }) => {
       fetchInterested();
     }
   }, [currentUser, showInterested]);
+
+  // DODANA: funkcja handleEventClick
+  const handleEventClick = (eventId) => {
+    navigate(`/event/${eventId}`);
+    setShowInterested(false); // Zamknij popup po kliknięciu
+  };
   
   const handleSubmit = (e) => {
     e.preventDefault();

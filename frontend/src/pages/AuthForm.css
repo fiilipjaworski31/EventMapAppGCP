@@ -21,6 +21,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: #111;
+  font-weight: bold;
 }
 
 .login-container h2 {

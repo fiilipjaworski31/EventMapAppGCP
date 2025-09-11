@@ -18,20 +18,3 @@ exports.createUser = async (req, res) => {
     res.status(500).json({ error: 'Failed to create user.' });
   }
 };
-
-exports.getCurrentUser = async (req, res) => {
-  try {
-    const user = await User.findByFirebaseId(req.user.uid);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found.' });
-    }
-    res.status(200).json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      created_at: user.created_at
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to get user data.' });
-  }
-};

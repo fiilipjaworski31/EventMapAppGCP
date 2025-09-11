@@ -1,6 +1,6 @@
 import './EventDetailsPage.css';
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import eventService from '../services/event.service';
 import reviewService from '../services/review.service';
@@ -13,7 +13,6 @@ import { useAuth } from '../context/AuthContext';
 const EventDetailsPage = () => {
   const { id } = useParams();
   const { currentUser } = useAuth();
-  const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -22,7 +21,6 @@ const EventDetailsPage = () => {
   const [editingReview, setEditingReview] = useState(null);
   const [userReview, setUserReview] = useState(null);
   const [isInterested, setIsInterested] = useState(false);
-  const [interestedLoading, setInterestedLoading] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -60,21 +58,20 @@ const EventDetailsPage = () => {
         setLoading(false);
       }
     };
-
     const checkIfInterested = async () => {
-      if (currentUser) {
-        try {
-          const token = await currentUser.getIdToken();
-          const response = await interestedService.getInterested(token);
-          const isEventInList = response.data.some(e => e.id === parseInt(id, 10));
-          setIsInterested(isEventInList);
-        } catch (error) {
-          console.error("Błąd sprawdzania zainteresowań:", error);
+        if (currentUser) {
+            try {
+                const token = await currentUser.getIdToken();
+                const response = await interestedService.getInterested(token);
+                const isEventInList = response.data.some(e => e.id === parseInt(id, 10));
+                setIsInterested(isEventInList);
+            } catch (error) {
+                console.error("Błąd sprawdzania zainteresowań:", error);
+            }
         }
-      }
-    };
-
+    }
     checkIfInterested();
+
     fetchData();
   }, [id, currentUser]);
 
@@ -115,31 +112,18 @@ const EventDetailsPage = () => {
   };
 
   const handleInterestToggle = async () => {
-    if (!currentUser) {
-      navigate('/login');
-      return;
-    }
-    
-    setInterestedLoading(true);
-    
+    if (!currentUser) return;
     try {
-      const token = await currentUser.getIdToken();
-      if (isInterested) {
-        await interestedService.removeInterested(id, token);
-      } else {
-        await interestedService.addInterested(id, token);
-      }
-      setIsInterested(!isInterested);
+        const token = await currentUser.getIdToken();
+        if (isInterested) {
+            await interestedService.removeInterested(id, token);
+        } else {
+            await interestedService.addInterested(id, token);
+        }
+        setIsInterested(!isInterested);
     } catch (error) {
-      console.error("Błąd zmiany zainteresowania:", error);
-      // Możesz dodać toast notification lub inną formę informacji o błędzie
-    } finally {
-      setInterestedLoading(false);
+        console.error("Błąd zmiany zainteresowania:", error);
     }
-  };
-
-  const handleBackClick = () => {
-    navigate('/');
   };
 
   if (loading) {
@@ -158,9 +142,6 @@ const EventDetailsPage = () => {
     return (
       <div className="page-background">
         <div className="event-details-container">
-          <button onClick={handleBackClick} className="back-button">
-            ← Powrót do mapy
-          </button>
           <div className="error-message">
             <h2>Wystąpił błąd</h2>
             <p>{error}</p>
@@ -174,9 +155,6 @@ const EventDetailsPage = () => {
     return (
       <div className="page-background">
         <div className="event-details-container">
-          <button onClick={handleBackClick} className="back-button">
-            ← Powrót do mapy
-          </button>
           <div className="not-found">
             <h2>Nie znaleziono wydarzenia</h2>
             <p>Wydarzenie o podanym identyfikatorze nie istnieje.</p>
@@ -189,11 +167,6 @@ const EventDetailsPage = () => {
   return (
     <div className="page-background">
       <div className="event-details-container">
-        {/* Back button */}
-        <button onClick={handleBackClick} className="back-button">
-          ← Powrót do mapy
-        </button>
-
         {/* Event Image Section */}
         {event.image_url && (
           <div className="event-image-section">
@@ -209,35 +182,14 @@ const EventDetailsPage = () => {
         )}
 
         <header className="event-header">
-          <div className="title-interest-container">
-            <h1 className="event-title">{event.title}</h1>
-            {currentUser && (
-              <button 
-                onClick={handleInterestToggle} 
-                className={`interest-button ${isInterested ? 'active' : ''}`}
-                disabled={interestedLoading}
-                title={isInterested ? 'Usuń z polubionych' : 'Dodaj do polubionych'}
-              >
-                {interestedLoading ? (
-                  <span className="loading-dots">...</span>
-                ) : (
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill={isInterested ? '#e91e63' : 'none'} 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                  </svg>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                <h1 className="event-title">{event.title}</h1>
+                {currentUser && (
+                    <button onClick={handleInterestToggle} className={`interest-button ${isInterested ? 'active' : ''}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={isInterested ? 'red' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
                 )}
-              </button>
-            )}
-          </div>
+            </div>
           
           {/* Event Meta Information */}
           <div className="event-meta-grid">
@@ -385,7 +337,7 @@ const EventDetailsPage = () => {
                 <p>Zaloguj się, aby dodać recenzję.</p>
                 <button 
                   className="login-button"
-                  onClick={() => navigate('/login')}
+                  onClick={() => window.location.href = '/login'}
                 >
                   Zaloguj się
                 </button>

@@ -7,7 +7,6 @@ const cors = require('cors');
 const eventRoutes = require('./routes/event.routes');
 const userRoutes = require('./routes/user.routes');
 const interestedRoutes = require('./routes/interested.routes');
-const friendsRoutes = require('./routes/friends.routes');
 
 const app = express();
 
@@ -16,7 +15,6 @@ app.use(express.json()); // Pozwala serwerowi rozumieć dane JSON w ciele zapyta
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/interested', interestedRoutes);
-app.use('/api/friends', friendsRoutes);
 
 const PORT = process.env.PORT || 8080;
 

@@ -4,7 +4,7 @@ import './Footer.css';
 const Footer = () => {
   return (
     <footer className="footer">
-      <p>&copy; 2025 Interaktywna Mapa Wydarzeń by Filip Jaworski. Wszelkie prawa zastrzeżone.</p>
+      <p>&copy; 2024 Interaktywna Mapa Wydarzeń by Filip Jaworski. Wszelkie prawa zastrzeżone.</p>
     </footer>
   );
 };

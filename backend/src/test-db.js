@@ -1,3 +1,5 @@
+// Plik: backend/src/test-db.js
+
 const { Pool } = require('pg');
 
 console.log('--- Rozpoczynam test połączenia z bazą danych... ---');

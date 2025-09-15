@@ -15,6 +15,7 @@ app.use(express.json()); // Pozwala serwerowi rozumieć dane JSON w ciele zapyta
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/interested', interestedRoutes);
+app.use('/api/friends', require('./routes/friend.routes')); 
 
 const PORT = process.env.PORT || 8080;
 

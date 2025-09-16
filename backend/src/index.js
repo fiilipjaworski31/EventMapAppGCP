@@ -12,7 +12,8 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+// Express 5 + path-to-regexp v6 nie akceptuje '*' jako ścieżki – użyj RegExp
+app.options(/.*/, cors(corsOptions));
 app.use(express.json()); // Pozwala serwerowi rozumieć dane JSON w ciele zapytania
 
 const PORT = process.env.PORT || 8080;

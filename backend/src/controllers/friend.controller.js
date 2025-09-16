@@ -1,5 +1,6 @@
 const Friend = require('../models/friend.model');
 const User = require('../models/user.model');
+const admin = require('firebase-admin');
 
 // POST /api/friends/search - Wyszukaj użytkownika po email lub username
 exports.searchUser = async (req, res) => {
@@ -10,19 +11,42 @@ exports.searchUser = async (req, res) => {
       return res.status(400).json({ error: 'Email lub username jest wymagany.' });
     }
 
-    const user = await Friend.findUserByEmailOrUsername(emailOrUsername);
-    
-    if (!user) {
+    // 1) Najpierw szukaj w lokalnej bazie (po email LUB username)
+    let dbUser = await Friend.findUserByEmailOrUsername(emailOrUsername);
+
+    // 2) Jeśli nie znaleziono i zapytanie wygląda jak email, spróbuj pobrać z Firebase
+    const looksLikeEmail = /.+@.+\..+/.test(emailOrUsername);
+    if (!dbUser && looksLikeEmail) {
+      try {
+        const fbUser = await admin.auth().getUserByEmail(emailOrUsername);
+        if (fbUser) {
+          // Sprawdź, czy mamy już użytkownika po firebase_uid
+          dbUser = await User.findByFirebaseId(fbUser.uid);
+          if (!dbUser) {
+            const generatedUsername = (fbUser.email && fbUser.email.split('@')[0]) || `user_${fbUser.uid.slice(0, 8)}`;
+            try {
+              const [created] = await User.create({ firebase_uid: fbUser.uid, email: fbUser.email, username: generatedUsername });
+              dbUser = created;
+            } catch (err) {
+              // Jeśli ktoś równolegle utworzył wpis, pobierz ponownie
+              if (err && err.code === '23505') {
+                dbUser = await User.findByFirebaseId(fbUser.uid);
+              } else {
+                throw err;
+              }
+            }
+          }
+        }
+      } catch (_) {
+        // Ignoruj: jeśli nie ma w Firebase, przejdziemy do 404 poniżej
+      }
+    }
+
+    if (!dbUser) {
       return res.status(404).json({ error: 'Użytkownik nie został znaleziony.' });
     }
 
-    // Nie zwracaj wrażliwych danych
-    const safeUser = {
-      id: user.id,
-      username: user.username,
-      email: user.email
-    };
-
+    const safeUser = { id: dbUser.id, username: dbUser.username, email: dbUser.email };
     res.status(200).json(safeUser);
   } catch (error) {
     console.error('Error searching user:', error);

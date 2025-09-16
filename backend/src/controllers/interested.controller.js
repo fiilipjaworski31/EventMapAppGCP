@@ -16,14 +16,17 @@ exports.getInterestedEvents = async (req, res) => {
 
 exports.addInterestedEvent = async (req, res) => {
   try {
+    console.log('[INTERESTED] addInterestedEvent handler start', { params: req.params, uid: req.user && req.user.uid });
     const user = await User.findByFirebaseId(req.user.uid);
     if (!user) {
       return res.status(404).json({ message: 'Nie znaleziono użytkownika.' });
     }
     const eventId = parseInt(req.params.eventId, 10);
+    console.log('[INTERESTED] inserting relation', { userId: user.id, eventId });
     await Interested.add(user.id, eventId);
     res.status(201).json({ message: 'Dodano do zainteresowań.' });
   } catch (error) {
+    console.error('[INTERESTED] addInterestedEvent error', error);
     if (error.code === '23505') { // Unikalny klucz
         return res.status(409).json({ message: 'Już jesteś zainteresowany tym wydarzeniem.' });
     }

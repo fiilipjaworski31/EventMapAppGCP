@@ -8,9 +8,10 @@ console.log(friendController);
 console.log("Czy funkcja 'getFriends' istnieje?:", typeof friendController.getFriends);
 // --- KONIEC SPRAWDZANIA ---
 const authenticate = require('../middleware/authenticate');
+const ensureAppUser = require('../middleware/ensureAppUser');
 
 // Wszystkie route'y wymagają uwierzytelnienia
-router.use(authenticate);
+router.use(authenticate, ensureAppUser);
 
 // POST /api/friends/search - Wyszukaj użytkownika
 router.post('/search', friendController.searchUser);

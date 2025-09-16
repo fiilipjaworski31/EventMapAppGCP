@@ -1,22 +1,33 @@
 import axios from 'axios';
+import { getAuth } from 'firebase/auth';
 
-// UWAGA: Zmień ten adres URL na adres Twojej wdrożonej usługi Cloud Run, gdy będzie gotowa.
-// Na razie, testuje i użyje adresu lokalnego.
-const API_URL = import.meta.env.VITE_API_URL;
+// Baza API. Zawsze bez końcowego '/'
+const RAW_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8080';
+const BASE = RAW_BASE.replace(/\/+$/, '');
 
-const apiClient = axios.create({
-  baseURL: API_URL,
+// Globalny klient z bazowym prefiksem '/api'
+export const apiClient = axios.create({ baseURL: `${BASE}/api` });
+
+// Automatyczne dołączanie tokenu do każdego żądania (jeśli użytkownik zalogowany)
+apiClient.interceptors.request.use(async (config) => {
+  try {
+    const user = getAuth().currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      config.headers = {
+        ...(config.headers || {}),
+        Authorization: `Bearer ${token}`,
+      };
+    }
+  } catch (_) {
+    // cicho ignoruj brak auth
+  }
+  return config;
 });
 
-// Funkcja do pobierania wszystkich wydarzeń
-export const getEvents = () => {
-  return apiClient.get('/api/events');
-};
-
+// Pomocnicze funkcje (zachowane dla kompatybilności)
+export const getEvents = (params) => apiClient.get('/events', { params });
 export const createEvent = async (eventData, token) => {
-  return apiClient.post('/events', eventData, {
-    headers: {
-      Authorization: `Bearer ${token}` // Dołącza token do nagłówka
-    }
-  });
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return apiClient.post('/events', eventData, { headers });
 };

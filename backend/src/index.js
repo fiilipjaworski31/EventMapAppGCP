@@ -4,7 +4,15 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors());
+// Konfiguracja CORS z poprawną obsługą preflight (OPTIONS) przed autoryzacją
+const corsOptions = {
+  origin: true, // Odbijaj pochodzenie
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json()); // Pozwala serwerowi rozumieć dane JSON w ciele zapytania
 
 const PORT = process.env.PORT || 8080;

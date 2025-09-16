@@ -9,7 +9,7 @@ const dbConfig = {
   // UWAGA: Wklej tutaj swoje hasło do bazy danych na potrzeby tego testu.
   password: 'Filipek123Postgres!', 
   database: 'eventsdb',
-  host: '127.0.0.1', // Łączymy się przez proxy, więc host to localhost
+  host: '127.0.0.1', // Łączy się przez proxy, więc host to localhost
   port: 5433,      // Port, na którym nasłuchuje proxy
 };
 

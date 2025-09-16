@@ -1,38 +1,33 @@
 steps:
-  # --- KROKI DLA BACKENDU ---
+  # --- Backend Steps (Twoja sprawdzona wersja) ---
   # 1. Zbuduj obraz kontenera Docker
   - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${_TAG}', './backend']
     id: 'Build Backend Image'
-    args:
-      - 'build'
-      - '-t'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${SHORT_SHA}'
-      - './backend'
 
   # 2. Wyślij obraz do Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${_TAG}']
     id: 'Push Backend Image'
-    args:
-      - 'push'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${SHORT_SHA}'
 
-  # 3. Wdróż nową wersję na Cloud Run
+  # 3. Wdróż nową wersję na Cloud Run (Twoja sprawdzona komenda)
   - name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim'
-    id: 'Deploy to Cloud Run'
     entrypoint: 'gcloud'
     args:
       - 'run'
       - 'deploy'
-      - 'map-events-api' # Nazwa Twojej usługi w Cloud Run
-      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${SHORT_SHA}'
+      - 'map-events-api'
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${_TAG}'
       - '--region'
       - '${_REGION}'
-      - '--platform=managed'
+      - '--platform'
+      - 'managed'
       - '--allow-unauthenticated'
       - '--service-account=ci-cd-service-account@${PROJECT_ID}.iam.gserviceaccount.com'
-      - '--set-sql-instances=healthy-result-469611-e9:europe-central2:event-map-db'
+      - '--add-cloudsql-instances=healthy-result-469611-e9:europe-central2:event-map-db' # <-- Przywrócona flaga
+    id: 'Deploy to Cloud Run'
 
-  # --- KROKI DLA FRONTENDU ---
+  # --- Frontend Steps (Z bezpiecznymi sekretami) ---
   # 4. Zainstaluj zależności frontendu
   - name: 'gcr.io/cloud-builders/npm'
     id: 'Install Frontend Dependencies'
@@ -68,6 +63,7 @@ availableSecrets:
 # Domyślne wartości zmiennych
 substitutions:
   _REGION: 'europe-central2'
+  _TAG: 'latest' 
 
 options:
   logging: CLOUD_LOGGING_ONLY

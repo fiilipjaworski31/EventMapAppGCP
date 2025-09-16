@@ -1,12 +1,12 @@
 steps:
 # Step 1: Build the Docker image for the backend
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA', './backend']
+  args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${_TAG}', './backend']
   id: 'Build Backend Image'
 
 # Step 2: Push the image to Google Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA']
+  args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${_TAG}']
   id: 'Push Backend Image'
 
 # Step 3: Deploy the new image version to Cloud Run
@@ -16,7 +16,7 @@ steps:
     - 'run'
     - 'deploy'
     - 'map-events-api'
-    - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA'
+    - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${_TAG}'
     - '--region'
     - '${_REGION}'
     - '--platform'
@@ -35,6 +35,9 @@ steps:
   args: ['run', 'build']
   dir: 'frontend'
   id: 'Build Frontend'
+  env:
+    - 'VITE_GOOGLE_MAPS_API_KEY=${_VITE_GOOGLE_MAPS_API_KEY}'
+    - 'VITE_GOOGLE_MAPS_ID=${_VITE_GOOGLE_MAPS_ID}'
 
 # Step 5: Deploy the front end to Firebase Hosting
 - name: 'node:18' # <-- CHANGE THIS LINE
@@ -46,10 +49,13 @@ steps:
   id: 'Deploy to Firebase Hosting'
 
 images:
-- '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:$COMMIT_SHA'
+- '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/map-events-api:${_TAG}'
 
 substitutions:
   _REGION: 'europe-central2'
+  _TAG: 'latest'
+  _VITE_GOOGLE_MAPS_API_KEY: ''
+  _VITE_GOOGLE_MAPS_ID: ''
 
 options:
   logging: CLOUD_LOGGING_ONLY

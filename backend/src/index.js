@@ -62,6 +62,14 @@ async function startServer() {
     app.use('/api/interested', interestedRoutes);
     app.use('/api/friends', friendRoutes);
 
+    // Opcjonalny debug: lista zarejestrowanych endpointów
+    if (process.env.DEBUG_ROUTES === '1') {
+      const listEndpoints = require('express-list-endpoints');
+      const endpoints = listEndpoints(app);
+      console.log('📋 Zarejestrowane endpointy:', endpoints);
+      app.get('/_debug/routes', (req, res) => res.json(endpoints));
+    }
+
     // 3) Proste sprawdzenie połączenia do bazy (używa pg bezpośrednio)
     const isInCloudRun = !!process.env.K_SERVICE;
     const instanceName = process.env.INSTANCE_CONNECTION_NAME || DEFAULT_INSTANCE;

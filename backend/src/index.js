@@ -1,68 +1,103 @@
 const express = require('express');
 console.log("--- ✅ [START] Wczytano plik index.js ---"); 
-const { Pool } = require('pg');
-// Importuj klienta Secret Managera
-const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const cors = require('cors');
-const eventRoutes = require('./routes/event.routes');
-const userRoutes = require('./routes/user.routes');
-const interestedRoutes = require('./routes/interested.routes');
 
 const app = express();
 
-app.use(cors());
+// Konfiguracja CORS z poprawną obsługą preflight (OPTIONS) przed autoryzacją
+const corsOptions = {
+  origin: true, // Odbijaj pochodzenie
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+// Express 5 + path-to-regexp v6 nie akceptuje '*' jako ścieżki – użyj RegExp
+app.options(/.*/, cors(corsOptions));
 app.use(express.json()); // Pozwala serwerowi rozumieć dane JSON w ciele zapytania
-app.use('/api/events', eventRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/interested', interestedRoutes);
-app.use('/api/friends', require('./routes/friend.routes')); 
 
 const PORT = process.env.PORT || 8080;
 
-// Nazwa sekretu, który stworzyłem w konsoli
-const secretName = 'projects/healthy-result-469611-e9/secrets/db-password/versions/latest';
+// Nazwa sekretu w GCP Secret Manager (używana tylko w Cloud Run)
+const DEFAULT_INSTANCE = 'healthy-result-469611-e9:europe-central2:event-map-db';
+const SECRET_NAME = 'projects/healthy-result-469611-e9/secrets/db-password/versions/latest';
 
-// Funkcja do pobierania sekretu z Secret Managera
-async function getDbPassword() {
-  console.log('Pobieranie hasła z Secret Manager...');
-  const client = new SecretManagerServiceClient();
-  const [version] = await client.accessSecretVersion({ name: secretName });
-  const password = version.payload.data.toString('utf8');
-  console.log('✅ Hasło pomyślnie pobrane.');
-  return password;
+// Bezpieczne pobieranie hasła tylko w produkcji/Cloud Run, lokalnie użyj .env
+async function ensureDbPassword() {
+  const isInCloudRun = !!process.env.K_SERVICE;
+  if (process.env.DB_PASSWORD) {
+    console.log('🔐 Używam hasła z env DB_PASSWORD.');
+    return process.env.DB_PASSWORD;
+  }
+  if (!isInCloudRun) {
+    console.warn('⚠️ DB_PASSWORD nie ustawione, a środowisko nie jest Cloud Run. Upewnij się, że masz lokalne .env.');
+    return undefined;
+  }
+  try {
+    console.log('Pobieranie hasła z Secret Manager (Cloud Run)...');
+    const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+    const client = new SecretManagerServiceClient();
+    const [version] = await client.accessSecretVersion({ name: SECRET_NAME });
+    const password = version.payload.data.toString('utf8');
+    console.log('✅ Hasło pomyślnie pobrane z Secret Manager.');
+    process.env.DB_PASSWORD = password; // Ustaw, aby widoczne było dla knex/knexfile
+    return password;
+  } catch (err) {
+    console.error('❌ Nie udało się pobrać hasła z Secret Manager:', err);
+    throw err;
+  }
 }
 
-// Główna funkcja uruchamiająca serwer
 async function startServer() {
   try {
-    // Pobierz hasło przed konfiguracją połączenia z bazą
-    const dbPassword = await getDbPassword();
+    // 1) Zapewnij, że mamy hasło zanim załadujemy trasy i modele (które korzystają z Knex)
+    await ensureDbPassword();
 
-    // Inteligentna konfiguracja bazy danych
-    const isProduction = process.env.NODE_ENV === 'production'; // Sprawdza, czy aplikacja działa w trybie produkcyjnym
+    // Ustaw domyślne INSTANCE_CONNECTION_NAME w Cloud Run, jeśli nie podano
+    const isInCloudRunBoot = !!process.env.K_SERVICE;
+    if (isInCloudRunBoot && !process.env.INSTANCE_CONNECTION_NAME) {
+      process.env.INSTANCE_CONNECTION_NAME = DEFAULT_INSTANCE;
+      console.log(`🔧 Ustawiono domyślne INSTANCE_CONNECTION_NAME: ${process.env.INSTANCE_CONNECTION_NAME}`);
+    }
 
-    const isInCloudRun = !!process.env.K_SERVICE; // Sprawdza, czy aplikacja działa w Cloud Run
+    // 2) Załaduj trasy dopiero teraz, aby modele/Knex miały dostęp do poprawnego hasła
+    const eventRoutes = require('./routes/event.routes');
+    const userRoutes = require('./routes/user.routes');
+    const interestedRoutes = require('./routes/interested.routes');
+    const friendRoutes = require('./routes/friend.routes');
 
+    app.use('/api/events', eventRoutes);
+    app.use('/api/users', userRoutes);
+    app.use('/api/interested', interestedRoutes);
+    app.use('/api/friends', friendRoutes);
+
+    // Opcjonalny debug: lista zarejestrowanych endpointów
+    if (process.env.DEBUG_ROUTES === '1') {
+      const listEndpoints = require('express-list-endpoints');
+      const endpoints = listEndpoints(app);
+      console.log('📋 Zarejestrowane endpointy:', endpoints);
+      app.get('/_debug/routes', (req, res) => res.json(endpoints));
+    }
+
+    // 3) Proste sprawdzenie połączenia do bazy (używa pg bezpośrednio)
+    const isInCloudRun = !!process.env.K_SERVICE;
+    const instanceName = process.env.INSTANCE_CONNECTION_NAME || DEFAULT_INSTANCE;
+    const { Pool } = require('pg');
     const dbConfig = {
       user: 'postgres',
-      password: dbPassword,
+      password: process.env.DB_PASSWORD,
       database: 'eventsdb',
-      // Użyj Unix socket w Cloud Run, a standardowego hosta i portu lokalnie
-      host: isInCloudRun
-        ? `/cloudsql/healthy-result-469611-e9:europe-central2:event-map-db` // Nazwa połączenia instancji Cloud SQL
-        : '127.0.0.1',
-      port: isInCloudRun ? undefined : 5433, // Domyślny port PostgreSQL to 5432, ale używam 5433, aby uniknąć konfliktów z lokalną instancją 
+      host: isInCloudRun ? `/cloudsql/${instanceName}` : '127.0.0.1',
+      port: isInCloudRun ? undefined : 5433,
     };
-
     const pool = new Pool(dbConfig);
 
     app.get('/', async (req, res) => {
       try {
         const result = await pool.query('SELECT NOW()');
         const currentTime = result.rows[0].now;
-
         res.status(200).json({
-          message: 'API działa, a hasło zostało bezpiecznie pobrane. 🚀',
+          message: 'API działa i ma dostęp do bazy. 🚀',
           dbTime: currentTime,
         });
       } catch (error) {
@@ -74,12 +109,10 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`✅ Serwer uruchomiony i nasłuchuje na porcie ${PORT}`);
     });
-
   } catch (error) {
     console.error('❌ Krytyczny błąd podczas uruchamiania serwera:', error);
-    process.exit(1); // Zatrzymaj aplikację w przypadku błędu
+    process.exit(1);
   }
 }
 
-// Uruchomienie serwera
 startServer();
